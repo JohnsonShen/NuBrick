@@ -15,6 +15,13 @@
  */
 #ifndef BATTERY_H_
 #define BATTERY_H_
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "M451Series.h"
+
+void Battery_Init(void);
+uint8_t GetBattery(void);
 void PowerControl(void);
 
 #endif /* BATTERY_H_ */

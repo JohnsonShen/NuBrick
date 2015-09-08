@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     retarget.c
  * @version  V3.00
- * $Revision: 1.1.1.1 $
- * $Date: 2015/09/07 06:57:28 $
+ * $Revision: 1.8 $
+ * $Date: 2015/02/03 02:12:50 $
  * @brief    M451 Series Debug Port and Semihost Setting Source File
  *
  * @note

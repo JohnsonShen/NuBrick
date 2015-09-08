@@ -21,6 +21,9 @@
 #include "flash.h"
 #include "scheduler.h"
 #include "battery.h"
+#include "buzzer.h"
+#include "IR.h"
+#include "Gas.h"
 
 #define SYSTEM_CLOCK 72000000
 void setupSystemClock()
@@ -63,6 +66,9 @@ void setup()
 	setup_system_tick(SYSTEM_TICK_FREQ);
 	I2C_Init();
 	FlashInit();
+	Buzzer_Init();
+	Battery_Init();
+	Gas_Init();
 }
 void CommandProcess()
 {
@@ -74,6 +80,10 @@ void loop()
 	CommandProcess();
 	TaskScheduler();
 	PowerControl();
+	Buzzer_Alerm();
+	Buzzer_Stop();
+	GetBattery();
+	GetGas();
 }
 
 /*-----------------------------------------------------------------------------------*/

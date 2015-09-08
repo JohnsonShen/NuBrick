@@ -16,5 +16,11 @@
 #ifndef GAS_H_
 #define GAS_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "M451Series.h"
+
+void Gas_Init(void);
+uint8_t GetGas(void);
 
 #endif /* GAS_H_ */

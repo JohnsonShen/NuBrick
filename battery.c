@@ -13,15 +13,15 @@
  *                                                             *
  *=============================================================*
  */
-
-#include "gas.h"
-
+ 
+#include "battery.h"
+ 
 // ---------------------------------------------------------------------------------------
-//  Gas ADC initialize setting
+//  ADC initialize setting
 //	Set PB2 as ADC converter
 //  Select APB0/8 as ADC module clock source  
 // --------------------------------------------------------------------------------------- 
-void Gas_Init()
+void Battery_Init()
 {
 	SYS_UnlockReg();
 	/* Enable EADC module clock */
@@ -51,11 +51,17 @@ void Gas_Init()
 }
 
 // ----------------------------------------------------------------------------------------
-//  Start Gas ADC conversion
+//  Start ADC conversion
 // ----------------------------------------------------------------------------------------
-uint8_t GetGas()
+uint8_t GetBattery()
 {
 	EADC_START_CONV(EADC, 0x1);
 	while(EADC_GET_INT_FLAG(EADC, 0x1) == 0);
 	return ((EADC_GET_CONV_DATA(EADC, 0))*100/4096);
 }
+
+void PowerControl()
+{
+	
+}
+

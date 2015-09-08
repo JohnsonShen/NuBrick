@@ -16,5 +16,13 @@
 #ifndef BUZZER_H_
 #define BUZZER_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "M451Series.h"
+#include "pwm.h"
+
+void Buzzer_Init(void);
+void Buzzer_Alerm(void);
+void Buzzer_Stop(void);
 
 #endif /* BUZZER_H_ */
