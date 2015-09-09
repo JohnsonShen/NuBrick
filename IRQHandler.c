@@ -13,15 +13,15 @@
  *                                                             *
  *=============================================================*
  */
-#ifndef BATTERY_H_
-#define BATTERY_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "M451Series.h"
+#include "IRQHandler.h"
 
-void Battery_Init(void);
-void GetBattery(void);
-void PowerControl(void);
+uint16_t capture_count;
+volatile uint16_t DHT11_DATA[40];
 
-#endif /* BATTERY_H_ */
+void TMR3_IRQHandler(void)
+{
+    DHT11_DATA[capture_count] = TIMER_GetCaptureData(TIMER3);
+		capture_count++;
+    TIMER_ClearCaptureIntFlag(TIMER3);
+}

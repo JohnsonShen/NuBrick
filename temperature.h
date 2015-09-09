@@ -16,5 +16,12 @@
 #ifndef TEMPERATURE_H_
 #define TEMPERATURE_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "M451Series.h"
+#include "timerctrl.h"
+
+void Init_DHT11(void);
+void Get_DHT11(void);
 
 #endif /* TEMPERATURE_H_ */

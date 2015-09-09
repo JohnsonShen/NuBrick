@@ -41,18 +41,19 @@ uint32_t pitch[72] = {
 // ---------------------------------------------------------------------------------------
 void Buzzer_Init()
 {
-	  /* Set PC9~PC11 multi-function pins for PWM1 Channel0~2  */
-    SYS->GPC_MFPH &= ~(SYS_GPC_MFPH_PC9MFP_Msk | SYS_GPC_MFPH_PC10MFP_Msk | SYS_GPC_MFPH_PC11MFP_Msk);
-    SYS->GPC_MFPH |= SYS_GPC_MFPH_PC9MFP_PWM1_CH0 | SYS_GPC_MFPH_PC10MFP_PWM1_CH1 | SYS_GPC_MFPH_PC11MFP_PWM1_CH2;
-	
-	  /* Enable PWM module clock */
-    CLK_EnableModuleClock(PWM1_MODULE);
+		 /* Enable PWM module clock */
+    CLK_EnableModuleClock(PWM0_MODULE);
 	
 	  /* Select PWM module clock source */
-    CLK_SetModuleClock(PWM1_MODULE, CLK_CLKSEL2_PWM1SEL_PCLK1, 0);
+    CLK_SetModuleClock(PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0);
 	
 	  /* Reset PWM1 channel 0~5 */
-    SYS_ResetModule(PWM1_RST);
+    SYS_ResetModule(PWM0_RST);
+	
+	  /* Set PC9~PC11 multi-function pins for PWM1 Channel0~2  */
+    SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC0MFP_Msk);
+    SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_PWM0_CH0;
+	
 }
 
 // ----------------------------------------------------------------------------------------
@@ -61,9 +62,11 @@ void Buzzer_Init()
 void Buzzer_Alerm()
 {
 		/* set PWMB channel 0 output configuration */
-		PWM_ConfigOutputChannel(PWM0, 3, 1200, 20);
+		PWM_ConfigOutputChannel(PWM0, 0, 1200, 20);
 		/* Enable PWM Output path for PWMB channel 0 */
-		PWM_EnableOutput(PWM0, BIT3);
+		PWM_EnableOutput(PWM0, PWM_CH_0_MASK);
+	  // Start
+    PWM_Start(PWM0, PWM_CH_0_MASK);
 }
 
 // ----------------------------------------------------------------------------------------

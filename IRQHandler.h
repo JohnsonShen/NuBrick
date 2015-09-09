@@ -13,15 +13,11 @@
  *                                                             *
  *=============================================================*
  */
-#ifndef BATTERY_H_
-#define BATTERY_H_
+#ifndef IRQHANDLER_H_
+#define IRQHANDLER_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
 
-void Battery_Init(void);
-void GetBattery(void);
-void PowerControl(void);
-
-#endif /* BATTERY_H_ */
+#endif /* IRQHANDLER_H_ */

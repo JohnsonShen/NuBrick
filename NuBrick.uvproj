@@ -500,6 +500,11 @@
               <FileType>1</FileType>
               <FilePath>.\report.c</FilePath>
             </File>
+            <File>
+              <FileName>IRQHandler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\IRQHandler.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

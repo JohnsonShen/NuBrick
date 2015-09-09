@@ -21,6 +21,6 @@
 #include "M451Series.h"
 
 void Gas_Init(void);
-uint8_t GetGas(void);
+void GetGas(void);
 
 #endif /* GAS_H_ */

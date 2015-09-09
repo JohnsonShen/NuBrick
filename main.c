@@ -24,6 +24,7 @@
 #include "buzzer.h"
 #include "IR.h"
 #include "Gas.h"
+#include "temperature.h"
 
 #define SYSTEM_CLOCK 72000000
 void setupSystemClock()
@@ -67,8 +68,8 @@ void setup()
 	I2C_Init();
 	FlashInit();
 	Buzzer_Init();
-	Battery_Init();
 	Gas_Init();
+	Battery_Init();
 }
 void CommandProcess()
 {
@@ -81,9 +82,10 @@ void loop()
 	TaskScheduler();
 	PowerControl();
 	Buzzer_Alerm();
-	Buzzer_Stop();
+	//Buzzer_Stop();
 	GetBattery();
 	GetGas();
+	Get_DHT11();
 }
 
 /*-----------------------------------------------------------------------------------*/
