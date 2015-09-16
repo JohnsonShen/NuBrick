@@ -451,11 +451,6 @@
               <FilePath>.\scheduler.c</FilePath>
             </File>
             <File>
-              <FileName>battery.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\battery.c</FilePath>
-            </File>
-            <File>
               <FileName>buzzer.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\buzzer.c</FilePath>
@@ -499,6 +494,31 @@
               <FileName>report.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\report.c</FilePath>
+            </File>
+            <File>
+              <FileName>Calibrate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Calibrate.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MPU6050.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensors.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sensors.c</FilePath>
+            </File>
+            <File>
+              <FileName>ahrs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ahrs.c</FilePath>
+            </File>
+            <File>
+              <FileName>battery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\battery.c</FilePath>
             </File>
             <File>
               <FileName>IRQHandler.c</FileName>
@@ -559,6 +579,11 @@
               <FileName>eadc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\Library\StdDriver\src\eadc.c</FilePath>
+            </File>
+            <File>
+              <FileName>AHRSLibM4.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\AHRSLib\obj\AHRSLibM4.lib</FilePath>
             </File>
             <File>
               <FileName>retarget.c</FileName>
@@ -654,6 +679,31 @@
               <FileName>report.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\report.h</FilePath>
+            </File>
+            <File>
+              <FileName>Calibrate.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Calibrate.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\MPU6050.h</FilePath>
+            </File>
+            <File>
+              <FileName>retarget.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\retarget.h</FilePath>
+            </File>
+            <File>
+              <FileName>sensors.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sensors.h</FilePath>
+            </File>
+            <File>
+              <FileName>AHRSLib.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\AHRSLib\include\AHRSLib.h</FilePath>
             </File>
           </Files>
         </Group>

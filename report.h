@@ -16,4 +16,15 @@
 #ifndef _REPORT_H
 #define _REPORT_H
 
+#define REPORT_FORMAT_TEXT        0 
+#define REPORT_FORMAT_BINARY      1 
+
+#define STREAM_START              1
+#define STREAM_PAUSE              0
+
+extern char report_mode;
+extern char report_format;
+extern char stream_mode;
+void report_sensors(void);
+
 #endif

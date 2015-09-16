@@ -1,48 +1,32 @@
-/*============================================================================*
- * O     O          __                   ______  __                           *
- *  \   /      /\  / /_      _    __    / /___/ / /_     _                    *
- *   [+]      /  \/ / \\    //__ / /__ / /____ / / \\   //                    *
- *  /   \    / /\  /   \\__// --/ /---/ /----// /   \\_//                     *
- * O     O  /_/  \/     \__/    \_\/ /_/     /_/ ____/_/                      *
- *                                                                            *
- *                                                                            *
- * Multi-Rotor controller firmware for Nuvoton Cortex M4 series               *
- *                                                                            *
- * Written by by T.L. Shen for Nuvoton Technology.                            *
- * tlshen@nuvoton.com/tzulan611126@gmail.com                                  *
- *                                                                            *
- *============================================================================*
+/*================================================================================*
+ * O     O          __             ______  __   __  ____     __  ___          __  *
+ *  \   /      /\  / /_      _    / /___/ / /  / / / __ \   / / /   \    /\  / /  *
+ *   [+]      /  \/ / \\    //   / /____ / /  / /  \ \_    / / | | | |  /  \/ /   *
+ *  /   \    / /\  /   \\__//   / /----// /__/ /  \ \__ \ / /  | | | | / /\  /    *
+ * O     O  /_/  \/     \__/   /_/      \_ ___/    \___ //_/    \___/ /_/  \/     *
+ *                                                                                *
+ *                                                                                *
+ * Nuvoton Sensor Fusion Application Firmware for Cortex M4 Series                *
+ *                                                                                *
+ * Written by by T.L. Shen for Nuvoton Technology.                                *
+ * tlshen@nuvoton.com/tzulan611126@gmail.com                                      *
+ *                                                                                *
+ *================================================================================*
  */
 #ifndef _SENSORS_H
 #define _SENSORS_H
 #include "Def.h"
 
-#if STACK_BARO
-typedef struct {
-	float baroPressure;
-	float baroTemperature;
-	float baroPressureSum;
-}BaroInfo_T;
-#endif
-
 typedef struct {
 	int16_t rawACC[3];
 	int16_t rawGYRO[3];
 	int16_t rawMAG[3];
-	int16_t rawBARO[2];
-#if STACK_BARO
-	BaroInfo_T BaroInfo;
-#endif
-	float Altitude;
 }Sensor_T;
 
 typedef struct {
 	bool ACC_Done;
 	bool GYRO_Done;
 	bool MAG_Done;
-	bool BARO_Done;
-	uint8_t BARO_BRAND;
-	int32_t BARO_BasePressure;
 }SensorInit_T;
 typedef struct {
 	bool ACC_FLASH;
@@ -104,10 +88,4 @@ char GetSensorCalState(void);
 void SetFlashState(CAL_FLASH_STATE_T* State);
 void SensorInitMAG(void);
 CAL_FLASH_STATE_T* GetFlashState(void);
-#if STACK_BARO
-int32_t GetBaroBasePressure(void);
-float GetBaroAltitude(void);
-void SetBaroAltitude(float alt);
-BaroInfo_T* GetBaroInfo(void);
-#endif
 #endif

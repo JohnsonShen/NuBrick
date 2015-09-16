@@ -20,4 +20,7 @@
 #include <stdlib.h>
 #include "M451Series.h"
 
+extern uint16_t capture_count;
+extern volatile uint16_t DHT11_DATA[42];
+
 #endif /* IRQHANDLER_H_ */

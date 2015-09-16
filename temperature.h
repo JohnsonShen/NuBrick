@@ -20,8 +20,12 @@
 #include <stdlib.h>
 #include "M451Series.h"
 #include "timerctrl.h"
+#include "IRQHandler.h"
 
-void Init_DHT11(void);
+void Init_DHT11_PWM1(void);
 void Get_DHT11(void);
+
+extern volatile uint16_t DHT11_temperature;
+extern volatile uint16_t DHT11_Humidity;
 
 #endif /* TEMPERATURE_H_ */
