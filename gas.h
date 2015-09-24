@@ -10,7 +10,7 @@
  *                                                             *
  * Written by MB40 for Nuvoton Technology.                     *
  * tlshen@nuvoton.com/tzulan611126@gmail.com                   *
- *                                                             *
+ * HCHEISH@nuvoton.com                                         *
  *=============================================================*
  */
 #ifndef GAS_H_

@@ -13,25 +13,13 @@
  * HCHEISH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef SONAR_H_
-#define SONAR_H_
+#ifndef TIMER3IRQ_H_
+#define TIMER3IRQ_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
-#include "config.h"
+#include "timerctrl.h"
+#include "IR.h"
 
-#define	SONARDISTANCE_SCALE 11.7546;						//distance(cm) = clock(5us)/11.7546
-
-void SonarInit(void);
-void SonarDetect(void);
-void SonarTimeOut(void);
-
-extern float SonarDistance_Scale;					//Distance between sonar and object
-extern float Sonar_Distance;							//Distance between sonar and object
-extern float Sonar_Distance_OUT;					//Distance between sonar and object		
-extern uint32_t Sonar_caprure_timer;			//Sonar PWM capture time between rising and falling		
-extern uint8_t SonarExecuteFLAG;					//Sonar start to detect distance	
-extern uint8_t SonarERRORCounter;					//Sonar time out flag	
-
-#endif /* SONAR_H_ */
+#endif /* TIMER3IRQ_H_ */

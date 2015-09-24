@@ -17,6 +17,8 @@
 #define CONFIG_H_
 #include "AHRSLib.h"
 #define HW__VERSION_CODE 1001
+#define VERSION_CODE 100
+#define BOARD_CODE   100
 #define USE_I2C_PORT1
 #define UART_BAUD_RATE 115200
 #define OUTPUT_DATA_INTERVAL 20  //milliseconds
@@ -25,6 +27,31 @@
 /************************/
 /*      ACC/GYRO        */
 /************************/
+#define AHRS
 #define MPU6050
+/**********************/
+/*       sonar        */
+/**********************/
+//#define SONAR
+/**********************/
+/*       buzzer       */
+/**********************/
+#define BUZZER
+/**********************/
+/*       battery      */
+/**********************/
+#define BATTERY
+/**********************/
+/*       Gas          */
+/**********************/
+#define GAS
+/**********************/
+/*       IR          */
+/**********************/
+#define IR
+/**********************/
+/*   temperature      */
+/**********************/
+#define TEMPERATURE
 #endif //CONFIG_H_
 

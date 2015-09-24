@@ -521,9 +521,24 @@
               <FilePath>.\battery.c</FilePath>
             </File>
             <File>
-              <FileName>IRQHandler.c</FileName>
+              <FileName>PWM1P1_IRQ.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\IRQHandler.c</FilePath>
+              <FilePath>.\PWM1P1_IRQ.c</FilePath>
+            </File>
+            <File>
+              <FileName>PWM0P2_IRQ.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\PWM0P2_IRQ.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer3IRQ.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\timer3IRQ.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer1IRQ.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\timer1IRQ.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -704,6 +719,31 @@
               <FileName>AHRSLib.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\AHRSLib\include\AHRSLib.h</FilePath>
+            </File>
+            <File>
+              <FileName>ahrs.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\ahrs.h</FilePath>
+            </File>
+            <File>
+              <FileName>PWM1P1_IRQ.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\PWM1P1_IRQ.h</FilePath>
+            </File>
+            <File>
+              <FileName>PWM0P2_IRQ.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\PWM0P2_IRQ.h</FilePath>
+            </File>
+            <File>
+              <FileName>timer3IRQ.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\timer3IRQ.h</FilePath>
+            </File>
+            <File>
+              <FileName>timer1IRQ.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\timer1IRQ.h</FilePath>
             </File>
           </Files>
         </Group>

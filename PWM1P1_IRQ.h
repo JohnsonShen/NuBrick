@@ -13,14 +13,12 @@
  *                                                             *
  *=============================================================*
  */
-#ifndef IRQHANDLER_H_
-#define IRQHANDLER_H_
+#ifndef PWM1P1_IRQ_H_
+#define PWM1P1_IRQ_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
+#include "temperature.h"
 
-extern uint16_t capture_count;
-extern volatile uint16_t DHT11_DATA[42];
-
-#endif /* IRQHANDLER_H_ */
+#endif /* PWM1P1_IRQ_H_ */
