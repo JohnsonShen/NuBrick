@@ -521,9 +521,9 @@
               <FilePath>.\battery.c</FilePath>
             </File>
             <File>
-              <FileName>IRQHandler.c</FileName>
+              <FileName>PWM1P1_IRQ.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\IRQHandler.c</FilePath>
+              <FilePath>.\PWM1P1_IRQ.c</FilePath>
             </File>
             <File>
               <FileName>PWM0P2_IRQ.c</FileName>
@@ -726,9 +726,9 @@
               <FilePath>.\ahrs.h</FilePath>
             </File>
             <File>
-              <FileName>IRQHandler.h</FileName>
+              <FileName>PWM1P1_IRQ.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\IRQHandler.h</FilePath>
+              <FilePath>.\PWM1P1_IRQ.h</FilePath>
             </File>
             <File>
               <FileName>PWM0P2_IRQ.h</FileName>
