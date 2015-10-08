@@ -16,8 +16,8 @@
 
 #include "temperature.h"
 
-volatile uint16_t DHT11_temperature;
-volatile uint16_t DHT11_Humidity;
+volatile uint8_t DHT11_temperature;
+volatile uint8_t DHT11_Humidity;
 volatile uint16_t DHT11_DATA[42];
 uint32_t DHT11_init_counter;							//Record start execution time 
 uint16_t Capture_EnableFlag;							//whether capture start

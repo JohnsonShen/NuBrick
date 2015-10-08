@@ -10,26 +10,17 @@
  *                                                             *
  * Written by MB40 for Nuvoton Technology.                     *
  * tlshen@nuvoton.com/tzulan611126@gmail.com                   *
- *                                                             *
+ * HCHEISH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef BATTERY_H_
-#define BATTERY_H_
+#ifndef WAKEUPIRQ_H_
+#define WAKEUPIRQ_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
-#include "temperature.h"
 #include "i2c_ms.h"
-#include "ir.h"
-#include "buzzer.h"
-#include "gas.h"
 
-void Battery_Init(void);
-void GetBattery(void);
-void PowerControl(void);
+void I2CWakeUpInit(void);
 
-extern uint8_t  BatteryData;
-extern volatile uint32_t MainTimeMSCounter;
-
-#endif /* BATTERY_H_ */
+#endif /* WAKEUPIRQ_H_ */

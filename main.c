@@ -38,8 +38,8 @@
 #include "sonar.h"
 #endif
 #include "timer1IRQ.h"
-
-extern int IsDebugFifoEmpty(void);
+#include "wakeupIRQ.h"
+#include "i2c_ms.h"
 
 volatile uint32_t RecentTimeCounter;
 volatile uint32_t MainTimeMSCounter;
@@ -61,12 +61,18 @@ void setupSystemClock()
 	/* Switch HCLK clock source to HIRC */
 	CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
 
+	/* Enable external XTAL 12MHz clock */
+	//CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);
+
+	/* Waiting for external XTAL clock ready */
+	//CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);
+
 	/* Set core clock as PLL_CLOCK from PLL and SysTick source to HCLK/2*/
 	CLK_SetCoreClock(SYSTEM_CLOCK);
 	CLK_SetSysTickClockSrc(CLK_CLKSEL0_STCLKSEL_HCLK_DIV2);
 
-    /* Waiting for PLL clock ready */
-    CLK_WaitClockReady(CLK_STATUS_PLLSTB_Msk);
+	/* Waiting for PLL clock ready */
+	CLK_WaitClockReady(CLK_STATUS_PLLSTB_Msk);
 
 	SYS_LockReg();
 }
@@ -91,7 +97,15 @@ void setup()
 	setupSystemClock();
 	setupUART();
 	setup_system_tick(SYSTEM_TICK_FREQ);
+	/* Init AHRS I2C */
 	I2C_Init();
+	/* ----Initialize I2C slave mode--- */
+	#ifdef I2C_MS_MASTER
+	I2C_MS_Master_Init();
+	#else
+	I2C_MS_Slave_Init();
+	//I2CWakeUpInit();
+	#endif
 	FlashInit();
 #ifdef BUZZER
 	Buzzer_Init();
@@ -127,7 +141,14 @@ void setup()
 	// Sleep mode setting, put this at last setup line
 	Timer1Init();
 
+	#ifndef I2C_MS_MASTER	
+	/* Unlock protected registers */
+	SYS_UnlockReg();
+	CLK_PowerDown();
+	#endif
+
 }
+
 void CommandProcess()
 {
 	// Read incoming control messages
@@ -218,11 +239,18 @@ void loop()
 		#ifdef AHRS
 		SensorsRead(SENSOR_ACC|SENSOR_GYRO,1);
 		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
-		AhrsRead(1,1);
+		if(AhrsRead(1,1))
+		printf("AHRS IS TRIGGERED.\n");
+		else
+		printf("AHRS is fine.\n");
 		#endif
 		// --------------IR-----------------
 		#ifdef IR
 		SendIR();
+		#endif
+		// --------------I2C Master-----------------
+		#ifdef I2C_MS_MASTER
+		I2C_MASTER_Read_Write_Start(0x15, 0);
 		#endif
 		
 		RecentTimeCounter = TMR1INTCount;
@@ -242,56 +270,19 @@ void loop()
 	#ifdef TEMPERATURE
 	DHT11GetDATA();				
 	#endif	
-	
-	// =======================================================
-	//                Print data & Sleep
-	// =======================================================
-	while( (IsDebugFifoEmpty() == 0) );
-	if( 1
-#ifdef SONAR	
-		&& (SonarExecuteFLAG == 0)
-#endif
-#ifdef TEMPERATURE
-		&& (DHT11ExecuteFlag == 0)
-#endif
-#ifdef IR
-		&& (IR_TxExecuteFLAG == 0)
-		&& (IR_RxExecute_Flag == 0)
-#endif
-#ifdef BUZZER
-		&& (BuzzerExecuteFlag == 0)
-#endif
-	)
-	{
-#ifdef SONAR	
-		printf("Sonar distance = %f\n",Sonar_Distance);
-#endif
-#ifdef IR
-		printf("IR DATA[0]= %X, IR DATA[1]= %X, IR DATA[2]=%X, IR DATA[3]=%X\n",IR_DATA_OUT[0],IR_DATA_OUT[1],IR_DATA_OUT[2],IR_DATA_OUT[3]);
-#endif
-#ifdef BATTERY
-		printf("BatteryData = %d, GasData = %d\n",BatteryData,GasData);
-#endif
-#ifdef TEMPERATURE
-		printf("DHT11_Humidity=%d,DHT11_temperature=%d\n", DHT11_Humidity,DHT11_temperature);
-#endif
-		printf("Whole time:%d\n",(getTickCount()-MainTimeMSCounter));
-		printf("I'm sleep.\n");
-		DelayMsec(10);
-		SYS_UnlockReg();
-		CLK_PowerDown();
-	}
+	// --------------I2C Master-----------------
+	#ifdef I2C_MS_MASTER
+	//I2C_MASTER_Read_Write_Con(0x15, AHRS_I2CDATA, AHRS_I2CDATALEN, I2C_READ);
+	I2C_MASTER_Read_Write_Con(0x15, IRTx_I2CDATA, IRTx_I2CDATALEN, I2C_WRITE);
+	#endif
+
 }
 
-/*-----------------------------------------------------------------------------------*/
-/*  Fly Controller Main Function                                                     */
-/*-----------------------------------------------------------------------------------*/
-int32_t main (void)
+/*---------------------------------------------------------------------------------------------------------*/
+/*  Main Function                                                                                          */
+/*---------------------------------------------------------------------------------------------------------*/
+int32_t main(void)
 {
 	setup();
 	while(true) loop();
 }
-
-
-
-

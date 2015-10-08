@@ -25,8 +25,8 @@ void Init_DHT11_PWM1(void);
 void Get_DHT11(void);
 void DHT11GetDATA(void);
 
-extern volatile uint16_t DHT11_temperature;
-extern volatile uint16_t DHT11_Humidity;
+extern volatile uint8_t DHT11_temperature;
+extern volatile uint8_t DHT11_Humidity;
 extern volatile uint16_t DHT11_DATA[42];
 extern uint16_t capture_count;
 extern uint8_t DHT11ExecuteFlag;

@@ -15,7 +15,7 @@
  */
 #ifndef _SENSORS_H
 #define _SENSORS_H
-#include "Def.h"
+#include "def.h"
 
 typedef struct {
 	int16_t rawACC[3];

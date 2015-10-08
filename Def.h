@@ -70,10 +70,15 @@
 #endif
 
 #define SYSTEM_CLOCK 72000000
-#ifdef USE_I2C_PORT1
-#define I2C_PORT I2C1
+#ifdef USE_I2C_AHRS_PORT1
+#define I2C_AHRS_PORT I2C1
 #else
-#define I2C_PORT I2C0
+#define I2C_AHRS_PORT I2C0
+#endif
+#ifdef I2C_MS_PORT0					//for I2C master & slave communicate
+#define I2C_MS_PORT I2C0					
+#else
+#define I2C_MS_PORT I2C1
 #endif
 #define IMU_UPDATE_FREQ 560
 #define DATA_FLASH_TEST_BASE 0x20000

@@ -33,7 +33,7 @@ void IR_TranDATA(void)
 	}
 	else if (IR_bit_state==1)
 	{
-		if(RxIR_CODE[IR_TX_Byten] & (1 << (IR_DATA_BIT_NUMBER-IR_TX_Bitn-1)))
+		if(TxIR_CODE[IR_TX_Byten] & (1 << (IR_DATA_BIT_NUMBER-IR_TX_Bitn-1)))
 		{
 			// Stop PWM0 CH3 output
 			PWM_DisableOutput(PWM0, PWM_CH_3_MASK);

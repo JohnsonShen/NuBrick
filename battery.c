@@ -19,7 +19,7 @@
 /*----------------------------------------------------------------------------------------*/
 /* Define global variables and constants                                                  */
 /*----------------------------------------------------------------------------------------*/
-uint16_t  BatteryData;
+uint8_t  BatteryData;
 
 /* ---------------------------------------------------------------------------------------*/
 /*  ADC initialize setting																																*/
@@ -72,6 +72,54 @@ void GetBattery(void)
 
 void PowerControl()
 {
-	
+	int i;
+	// =======================================================
+	//                Print data & Sleep
+	// =======================================================
+	if( 1
+#ifdef SONAR	
+		&& (SonarExecuteFLAG == 0)
+#endif
+#ifdef TEMPERATURE
+		&& (DHT11ExecuteFlag == 0)
+#endif
+#ifdef IR
+		&& (IR_TxExecuteFLAG == 0)
+		&& (IR_RxExecute_Flag == 0)
+#endif
+#ifdef BUZZER
+		&& (BuzzerExecuteFlag == 0)
+#endif
+#ifdef I2C_MS_MASTER
+		&& (I2CMstEndFlag == 1)
+#else
+		&& (I2CMSData[SLEEP_REG]==0)
+#endif
+	)
+	{
+#ifdef SONAR	
+		printf("Sonar distance = %f\n",Sonar_Distance);
+#endif
+#ifdef IR
+		printf("IR DATA[0]= %X, IR DATA[1]= %X, IR DATA[2]=%X, IR DATA[3]=%X\n",IR_DATA_OUT[0],IR_DATA_OUT[1],IR_DATA_OUT[2],IR_DATA_OUT[3]);
+#endif
+#ifdef BATTERY
+		printf("BatteryData = %d\n",BatteryData);
+#endif
+#ifdef GAS
+		printf("GasData = %d\n",GasData);
+#endif
+#ifdef TEMPERATURE
+		printf("DHT11_Humidity=%d,DHT11_temperature=%d\n", DHT11_Humidity,DHT11_temperature);
+#endif
+		for(i = 0;i < 31;i++)
+		printf("Data[%d]=%d\n",i,I2CMSData[i]);
+		printf("Whole time:%d\n",(getTickCount()-MainTimeMSCounter));
+		printf("I'm sleep.\n");
+		while(((UART0->FIFOSTS) & UART_FIFOSTS_TXEMPTY_Msk) == 0);
+		SYS_UnlockReg();
+		CLK_PowerDown();
+		SYS_LockReg();
+	}
 }
 

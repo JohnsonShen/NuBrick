@@ -61,6 +61,6 @@ void TMR1_IRQHandler(void)
     {
         /* Clear Timer0 wake-up flag */
         TIMER_ClearWakeupFlag(TIMER1);
-				printf("I'm awake.\n");
+				printf("I'm awake by TMR.\n");
     }
 }

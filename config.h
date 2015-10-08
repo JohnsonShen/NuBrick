@@ -19,20 +19,25 @@
 #define HW__VERSION_CODE 1001
 #define VERSION_CODE 100
 #define BOARD_CODE   100
-#define USE_I2C_PORT1
+#define USE_I2C_AHRS_PORT1
+#define I2C_MS_PORT0							//for I2C master & slave communicate
 #define UART_BAUD_RATE 115200
 #define OUTPUT_DATA_INTERVAL 20  //milliseconds
 #define DEBUG_PRINT printf
 #define DISPLAY_LOOP_TIME 0
 /************************/
+/*     I2C MS master     */
+/************************/
+#define I2C_MS_MASTER
+/************************/
 /*      ACC/GYRO        */
 /************************/
-//#define AHRS
+#define AHRS
 #define MPU6050
 /**********************/
 /*       sonar        */
 /**********************/
-#define SONAR
+//#define SONAR
 /**********************/
 /*       buzzer       */
 /**********************/

@@ -20,7 +20,7 @@
 // Suggest:Fastest excute ratio: 100ms
 // 
 // OUTPUT PIN: 			PC2(PWM_CH2)
-// INPUT PIN: 			PC4(PWM0_CH4),qusai mode
+// INPUT PIN: 			PC4(PWM0_CH4),quasi mode
 // Interrupt:				PWM0P2
 // Main parameter:	Sonar_Distance:distance between sonar and object
 // ***********************************************************

@@ -122,10 +122,10 @@ void IR_Init(void)
 /* parameter initialize                                                                       */
 /*---------------------------------------------------------------------------------------------------------*/	
 	IR_TxExecuteFLAG=0;
-	RxIR_CODE[0]=0xA5;
-	RxIR_CODE[1]=0x5A;
-	RxIR_CODE[2]=0x5A;
-	RxIR_CODE[3]=0xA5;
+	TxIR_CODE[0]=0xA5;
+	TxIR_CODE[1]=0x5A;
+	TxIR_CODE[2]=0x5A;
+	TxIR_CODE[3]=0xA5;
 
 }
 

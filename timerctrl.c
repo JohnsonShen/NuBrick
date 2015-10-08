@@ -15,7 +15,7 @@
  */
 #include <stdio.h>
 #include "math.h"
-#include "Def.h"
+#include "def.h"
 
 #include "M451Series.h"
 #include "timerctrl.h"

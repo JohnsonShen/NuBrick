@@ -23,6 +23,6 @@
 void Gas_Init(void);
 void GetGas(void);
 
-extern uint16_t  GasData;
+extern uint8_t  GasData;
 
 #endif /* GAS_H_ */

@@ -15,7 +15,7 @@
  */
 #ifndef _FLASH_CTRL_H
 #define _FLASH_CTRL_H
-#include "Def.h"
+#include "def.h"
 //Calibration Section
 #define CAL_BASE	16
 #define FIELD_VALID_SIZE 1
