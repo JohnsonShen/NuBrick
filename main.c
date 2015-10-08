@@ -272,8 +272,7 @@ void loop()
 	#endif	
 	// --------------I2C Master-----------------
 	#ifdef I2C_MS_MASTER
-	//I2C_MASTER_Read_Write_Con(0x15, AHRS_I2CDATA, AHRS_I2CDATALEN, I2C_READ);
-	I2C_MASTER_Read_Write_Con(0x15, IRTx_I2CDATA, IRTx_I2CDATALEN, I2C_WRITE);
+	I2C_MASTER_Read_Write_Con(0x15, AHRS_I2CDATA, AHRS_I2CDATALEN, I2C_READ);
 	#endif
 
 }
