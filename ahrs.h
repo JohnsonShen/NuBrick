@@ -24,10 +24,17 @@
 #include "MPU6050.h"
 #include "def.h"
 #include "flash.h"
+#include "timerctrl.h"
+#include "tid.h"
 
 #define ACC_PRESCALE		2
-#define GYRO_PRESCALE		360
+#define GYRO_PRESCALE		10
 
-uint8_t AhrsRead(uint8_t, uint8_t);
+void AhrsParaInit(void);
+void AhrsRead(uint8_t, uint16_t, uint8_t);
+
+extern float Gyro[3];
+extern int8_t VibrationOverFlag;
+extern float GyroValue;
 
 #endif /* AHRS_H_ */

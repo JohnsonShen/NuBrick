@@ -155,27 +155,7 @@ void FlashInit()
 #endif
 	printf("Flash initilize - [OK]\n");
 }
-void UpdateFlashCounter()
-{
-	/* Enable ISP function */
-#ifdef M451
-	SYS_UnlockReg();
-	FMC_Open();
-#else
-	DrvFMC_EnableISP();
-#endif
-	//printf("  Data Flash Base Address .................... [0x%08x]\n", DATA_Flash_Start_ADD);
-	FlashCounter = DATA_FLASH_Read(0);
 
-	FlashCounter++;
-	DATA_FLASH_Write(0,FlashCounter);
-#ifdef M451
-	FMC_Close();
-	SYS_LockReg();
-#else
-	DrvFMC_DisableISP();
-#endif
-}
 int32_t float2dw(float f)
 {
 	int32_t* pdw;
@@ -221,14 +201,7 @@ DrvFMC_EnableISP();
 	DrvFMC_DisableISP();
 #endif
 }
-uint32_t GetFlashCounter(void)
-{
-	return FlashCounter;
-}
-float GetFloatCounter(void)
-{
-	return tfloat;
-}
+
 void UpdateFlashCal(int8_t sensorType, bool erase)
 {
 	uint8_t CalBase, i, QualityFactor;
@@ -347,31 +320,4 @@ bool GetFlashCal(int8_t sensorType, float* Cal)
 		FlashValid = false;
 	
 	return FlashValid;
-}
-
-void FlashControl()
-{
-	char Action = GetChar();
-
-	if(Action=='e') {
-		char Part = GetChar();
-		if(Part=='a') {
-			UpdateFlashCal(SENSOR_ACC, true);
-			printf("ACC CalData Erased.\n");
-		}
-		else if(Part=='g') {
-			UpdateFlashCal(SENSOR_GYRO, true);
-			printf("GYRO CalData Erased.\n");
-		}
-		else if(Part=='m') {
-			UpdateFlashCal(SENSOR_MAG, true);
-			printf("MAG CalData Erased.\n");
-		}
-		else if(Part=='x') {
-			UpdateFlashCal(SENSOR_ACC, true);
-			UpdateFlashCal(SENSOR_GYRO, true);
-			UpdateFlashCal(SENSOR_MAG, true);
-			printf("Flash Data Erased.\n");
-		}
-	}
 }

@@ -23,44 +23,101 @@ uint32_t DHT11_init_counter;							//Record start execution time
 uint16_t Capture_EnableFlag;							//whether capture start
 uint16_t capture_count;
 uint8_t DHT11ExecuteFlag;									//whether start temperature execution
+int8_t TempOverFlag;							//Temperature value > saturation
+int8_t HumiOverFlag;							//Humidity value > saturation
+int32_t TempOverTimeCounter;			//Temperature alerm time
+int32_t HumiOverTimeCounter;			//Humidity alerm time
 
 // ---------------------------------------------------------------------------------------
 //  Timer0 initialize setting
 //	Set PD.11 as output
 //  Select PCLK as PWM module clock source  
 // ---------------------------------------------------------------------------------------
-void Init_DHT11_PWM1(void)
+void Init_DHT11_PWM0(void)
 {	
 	/* Unlock protected registers */
 	SYS_UnlockReg();
 	
 	/* Enable PWM1 module clock */
-  CLK_EnableModuleClock(PWM1_MODULE);
+	CLK_EnableModuleClock(PWM0_MODULE);
 
-  /*---------------------------------------------------------------------------------------------------------*/
-  /* PWM clock frequency configuration                                                                       */
-  /*---------------------------------------------------------------------------------------------------------*/
-  /* Select HCLK clock source as PLL and and HCLK clock divider as 1 */
-  CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_PLL, CLK_CLKDIV0_HCLK(2));
+	/*---------------------------------------------------------------------------------------------------------*/
+	/* PWM clock frequency configuration                                                                       */
+	/*---------------------------------------------------------------------------------------------------------*/
+	/* Select HCLK clock source as PLL and and HCLK clock divider as 1 */
+	CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_PLL, CLK_CLKDIV0_HCLK(2));
 
-  /* PWM clock frequency can be set equal or double to HCLK by choosing case 1 or case 2 */
-  /* case 1.PWM clock frequency is set equal to HCLK: select PWM module clock source as PCLK */
-  CLK_SetModuleClock(PWM1_MODULE, CLK_CLKSEL2_PWM1SEL_PCLK1, NULL);
+	/* PWM clock frequency can be set equal or double to HCLK by choosing case 1 or case 2 */
+	/* case 1.PWM clock frequency is set equal to HCLK: select PWM module clock source as PCLK */
+	CLK_SetModuleClock(PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, NULL);
 	
-  /* Reset PWM1 module */
-  SYS_ResetModule(PWM1_RST);
+	/* Reset PWM1 module */
+	SYS_ResetModule(PWM0_RST);
 
-  /* Update System Core Clock */
-  SystemCoreClockUpdate();
+	/* Update System Core Clock */
+	SystemCoreClockUpdate();
 	
 	/* Lock protected registers */
-  SYS_LockReg();
+	SYS_LockReg();
 	
 	/* PIN initialize */
-	SYS->GPC_MFPH = (SYS->GPC_MFPH & (~SYS_GPC_MFPH_PC11MFP_Msk));
-	SYS->GPC_MFPH |= SYS_GPC_MFPH_PC11MFP_GPIO;
-	GPIO_SetMode(PC,BIT11,GPIO_MODE_OUTPUT);
-	PC11=1;
+	SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC0MFP_Msk));
+	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_GPIO;
+	GPIO_SetMode(PC,BIT0,GPIO_MODE_OUTPUT);
+	PC0=1;
+
+	TempDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
+	TempDev.DevDesc.RptDesc_leng = 58;						//Report descriptor
+	TempDev.DevDesc.InRptLeng = 8;								//Input report
+	TempDev.DevDesc.OutRptLeng = 0;								//Output report
+	TempDev.DevDesc.GetFeatLeng = 8;							//Get feature
+	TempDev.DevDesc.SetFeatLeng = 8;							//Set feature
+	TempDev.DevDesc.CID = 0;											//manufacturers ID
+	TempDev.DevDesc.DID = 0;											//Product ID
+	TempDev.DevDesc.PID = 0;											//Device firmware revision
+	TempDev.DevDesc.UID = 0;											//Device Class type
+	TempDev.DevDesc.UCID = 0;											//reserve
+	/* Feature */
+	TempDev.Feature.data1.minimum = 0;						//Sleep period
+	TempDev.Feature.data1.maximum = 1024;
+	TempDev.Feature.data1.value = 100;
+	TempDev.Feature.data2.minimum = 0;						//temperature alerm value
+	TempDev.Feature.data2.maximum = 100;
+	TempDev.Feature.data2.value = 35;
+	TempDev.Feature.data3.minimum = 0;						//humidity alerm value
+	TempDev.Feature.data3.maximum = 100;
+	TempDev.Feature.data3.value = 70;
+	TempDev.Feature.arg[0] = 1;
+	TempDev.Feature.arg[1] = 2;
+	TempDev.Feature.arg[2] = 3;
+	TempDev.Feature.datalen[0] = 2;
+	TempDev.Feature.datalen[1] = 2;
+	TempDev.Feature.datalen[2] = 2;
+	TempDev.Feature.dataNum = 3;
+	/* Input */
+	TempDev.Input.data1.minimum = 0;							//temperature value
+	TempDev.Input.data1.maximum = 100;
+	TempDev.Input.data1.value = 25;
+	TempDev.Input.data2.minimum = 0;							//humidity value
+	TempDev.Input.data2.maximum = 100;
+	TempDev.Input.data2.value = 50;
+	TempDev.Input.data3.minimum = 0;							//temperature over flag
+	TempDev.Input.data3.maximum = 1;
+	TempDev.Input.data3.value = 0;
+	TempDev.Input.data4.minimum = 0;							//humidity over flag
+	TempDev.Input.data4.maximum = 1;
+	TempDev.Input.data4.value = 0;
+	TempDev.Input.arg[0] = 1;
+	TempDev.Input.arg[1] = 2;
+	TempDev.Input.arg[2] = 3;
+	TempDev.Input.arg[3] = 4;
+	TempDev.Input.datalen[0] = 2;
+	TempDev.Input.datalen[1] = 2;
+	TempDev.Input.datalen[2] = 1;
+	TempDev.Input.datalen[3] = 1;
+	TempDev.Input.dataNum = 4;
+	/* Output */
+	TempDev.Output.dataNum = 0;
 
 }
 
@@ -70,10 +127,10 @@ void Set_PWM_Pin()
 /* Init I/O Multi-function                                                                                 */
 /*---------------------------------------------------------------------------------------------------------*/
 	/* Set PC multi-function pins for PWM1 Channel 0 and 2 */
-	SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC6MFP_Msk));
-  SYS->GPC_MFPL |= SYS_GPC_MFPL_PC6MFP_PWM1_CH0;
-	SYS->GPC_MFPH = (SYS->GPC_MFPH & (~SYS_GPC_MFPH_PC11MFP_Msk));
-  SYS->GPC_MFPH |= SYS_GPC_MFPH_PC11MFP_PWM1_CH2;
+	//SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC6MFP_Msk));
+	//SYS->GPC_MFPL |= SYS_GPC_MFPL_PC6MFP_PWM1_CH0;
+	SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC0MFP_Msk));
+	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_PWM0_CH0;
 }
 
 void Start_PWMCapture()
@@ -95,25 +152,25 @@ void Start_PWMCapture()
   */
 
   /* set PWM1 channel 2 capture configuration */
-  PWM_ConfigCaptureChannel(PWM1, 2, 1000, 0);
+  PWM_ConfigCaptureChannel(PWM0, 0, 1000, 0);
 
   /* Enable capture falling edge interrupt for PWM1 channel 2 */
-  PWM_EnableCaptureInt(PWM1, 2, PWM_CAPTURE_INT_FALLING_LATCH);
+  PWM_EnableCaptureInt(PWM0, 0, PWM_CAPTURE_INT_FALLING_LATCH);
 
   /* Enable PWM1 NVIC interrupt */
-  NVIC_EnableIRQ(PWM1P1_IRQn);
+  NVIC_EnableIRQ(PWM0P0_IRQn);
 
   /* Enable Timer for PWM1 channel 2 */
-  PWM_Start(PWM1, PWM_CH_2_MASK);
+  PWM_Start(PWM0, PWM_CH_0_MASK);
 
   /* Enable Capture Function for PWM1 channel 2 */
-  PWM_EnableCapture(PWM1, PWM_CH_2_MASK);
+  PWM_EnableCapture(PWM0, PWM_CH_0_MASK);
 
   /* Enable falling capture reload */
-  PWM1->CAPCTL |= PWM_CAPCTL_FCRLDEN2_Msk;
+  PWM0->CAPCTL |= PWM_CAPCTL_FCRLDEN2_Msk;
 
   /* Wait until PWM1 channel 2 Timer start to count */
-  while((PWM1->CNT[2]) == 0);
+  while((PWM0->CNT[0]) == 0);
 }
 
 void Stop_PWMCapture()
@@ -124,22 +181,22 @@ void Stop_PWMCapture()
   /*---------------------------------------------------------------------------------------------------------*/
 
   /* Disable PWM1 NVIC */
-  NVIC_DisableIRQ(PWM1P1_IRQn);
+  NVIC_DisableIRQ(PWM0P0_IRQn);
 
   /* Set loaded value as 0 for PWM1 channel 2 */
-  PWM_Stop(PWM1, PWM_CH_2_MASK);
+  PWM_Stop(PWM0, PWM_CH_0_MASK);
 	
 	/* Disable Capture Function and Capture Input path for  PWM1 channel 2*/
-  PWM_DisableCapture(PWM1, PWM_CH_2_MASK);
+  PWM_DisableCapture(PWM0, PWM_CH_0_MASK);
 
-  /* Wait until PWM1 channel 2 current counter reach to 0 */
-  while((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0);
+  /* Wait until PWM0 channel 0 current counter reach to 0 */
+  while((PWM0->CNT[0] & PWM_CNT_CNT_Msk) != 0);
 
-  /* Disable Timer for PWM1 channel 2 */
-  PWM_ForceStop(PWM1, PWM_CH_2_MASK);
+  /* Disable Timer for PWM0 channel 2 */
+  PWM_ForceStop(PWM0, PWM_CH_0_MASK);
 
-  /* Clear Capture Interrupt flag for PWM1 channel 2 */
-  PWM_ClearCaptureIntFlag(PWM1, 2, PWM_CAPTURE_INT_FALLING_LATCH);
+  /* Clear Capture Interrupt flag for PWM0 channel 0 */
+  PWM_ClearCaptureIntFlag(PWM0, 0, PWM_CAPTURE_INT_FALLING_LATCH);
 }
 
 void UpdateTempDATA()
@@ -203,6 +260,11 @@ void UpdateTempDATA()
 		DHT11_temperature = DHT11_temp_integ;
 		//printf("DHT11_Humidity=%d,DHT11_temperature=%d,CRC=%d\n", DHT11_Humidity,DHT11_temperature,DHT11_CRC);
 	}
+	else
+	{
+		DHT11_Humidity = 0;
+		DHT11_temperature = 0;
+	}
 }
 
 // ---------------------------------------------------------------------------------------
@@ -217,11 +279,11 @@ void Get_DHT11()
 		if(DHT11ExecuteFlag == 0)
 		{
 			DHT11_init_counter = getTickCount();
-			SYS->GPC_MFPH = (SYS->GPC_MFPH & (~SYS_GPC_MFPH_PC11MFP_Msk));
-			SYS->GPC_MFPH |= SYS_GPC_MFPH_PC11MFP_GPIO;
-			GPIO_SetMode(PC,BIT11,GPIO_MODE_OUTPUT);
-			PC11 = 0;
-			DHT11ExecuteFlag++;
+			SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC0MFP_Msk));
+			SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_GPIO;
+			GPIO_SetMode(PC,BIT0,GPIO_MODE_OUTPUT);
+			PC0 = 0;
+			DHT11ExecuteFlag=1;
 		}
 	}
 }
@@ -241,12 +303,54 @@ void DHT11GetDATA()
 	{
 		//Stop PWM1 capture, Change PC11 to GPIO
 		Stop_PWMCapture();
-		PC11 = 1;		
-		SYS->GPC_MFPH = (SYS->GPC_MFPH & (~SYS_GPC_MFPH_PC11MFP_Msk));
-		SYS->GPC_MFPH |= SYS_GPC_MFPH_PC11MFP_GPIO;
-		GPIO_SetMode(PC,BIT11,GPIO_MODE_OUTPUT);
+		PC0 = 1;		
+		SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC0MFP_Msk));
+		SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_GPIO;
+		GPIO_SetMode(PC,BIT0,GPIO_MODE_OUTPUT);
 		//Update Data
 		UpdateTempDATA();
+
+		/* Update TID value */
+		TempDev.Input.data2.value = DHT11_Humidity;
+		if(TempDev.Input.data2.value > TempDev.Feature.data3.value)
+		{
+			TempDev.Input.data4.value = 1;
+			//HumiOverTimeCounter = getTickCount()+ TempDev.Feature.data4.value*1000;
+		}
+		else
+		{
+			TempDev.Input.data4.value = 0;
+		}
+		
+		/* reset alerm flag after 10s */
+//		if(TempDev.Input.data4.value == 1)
+//		{
+//			if(getTickCount() > HumiOverTimeCounter)
+//				TempDev.Input.data4.value = 0;
+//			if(TempDev.Output.data1.value == 1)
+//				TempDev.Input.data4.value = 0;
+//		}
+		
+		TempDev.Input.data1.value = DHT11_temperature;
+		if(TempDev.Input.data1.value > TempDev.Feature.data2.value)
+		{
+			TempDev.Input.data3.value = 1;
+			//TempOverTimeCounter = getTickCount()+ TempDev.Feature.data4.value*1000;
+		}
+		else
+		{
+			TempDev.Input.data3.value = 0;
+		}
+		
+		/* reset alerm flag after 10s */
+//		if(TempDev.Input.data3.value == 1)
+//		{
+//			if(getTickCount() > TempOverTimeCounter)
+//				TempDev.Input.data3.value = 0;
+//			if(TempDev.Output.data1.value == 1)
+//				TempDev.Input.data3.value = 0;
+//		}
+	
 		DHT11ExecuteFlag = 0;
 		capture_count = 0;
 		Capture_EnableFlag=0;
@@ -256,10 +360,10 @@ void DHT11GetDATA()
 	if((DHT11ExecuteFlag > 0) && (getTickCount()-DHT11_init_counter)>50)	
 	{
 		Stop_PWMCapture();
-		PC11 = 1;		
-		SYS->GPC_MFPH = (SYS->GPC_MFPH & (~SYS_GPC_MFPH_PC11MFP_Msk));
-		SYS->GPC_MFPH |= SYS_GPC_MFPH_PC11MFP_GPIO;
-		GPIO_SetMode(PC,BIT11,GPIO_MODE_OUTPUT);
+		PC0 = 1;		
+		SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC0MFP_Msk));
+		SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_GPIO;
+		GPIO_SetMode(PC,BIT0,GPIO_MODE_OUTPUT);
 		//printf("capture_count=%d,DHT11ExecuteFlag=%d\n", capture_count, DHT11ExecuteFlag);
 		DHT11ExecuteFlag = 0;
 		capture_count = 0;

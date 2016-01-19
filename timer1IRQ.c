@@ -17,6 +17,7 @@
 #include "timer1IRQ.h"
 
 volatile uint32_t TMR1INTCount;				// 1s timer counter
+volatile uint32_t TMR1TimerCounter;				// 1s timer counter
 
 // *************************************************************************
 //  Timer1 initialize setting
@@ -34,8 +35,8 @@ void Timer1Init()
   /* Enable Timer0 NVIC */
   NVIC_EnableIRQ(TMR1_IRQn);	
 	
-	/* Open Timer0 time-out frequency to 1 Hz in periodic mode */
-  TIMER_Open(TIMER1, TIMER_PERIODIC_MODE, 1);
+	/* Open Timer0 time-out frequency to 10 Hz in periodic mode */
+  TIMER_Open(TIMER1, TIMER_PERIODIC_MODE, 10);
 	
 	/* Enable Timer0 time-out interrupt and wake-up function */
   TIMER_EnableInt(TIMER1);
@@ -61,6 +62,6 @@ void TMR1_IRQHandler(void)
     {
         /* Clear Timer0 wake-up flag */
         TIMER_ClearWakeupFlag(TIMER1);
-				printf("I'm awake by TMR.\n");
+				//printf("I'm awake by TMR.\n");
     }
 }

@@ -19,10 +19,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
+#include "tid.h"
 
 void Gas_Init(void);
 void GetGas(void);
 
-extern uint8_t  GasData;
+extern uint16_t  GasData;
 
 #endif /* GAS_H_ */

@@ -20,10 +20,15 @@
 #include <stdlib.h>
 #include "M451Series.h"
 #include "pwm.h"
+#include "timerctrl.h"
+#include "tid.h"
+#include "music.h"
 
 void Buzzer_Init(void);
-void Buzzer_Alerm(void);
+void Buzzer_Alerm(uint16_t, uint16_t, uint8_t);
 void Buzzer_Stop(void);
+void Buzzer_Song_Start(void);
+void Buzzer_Song_Check(void);
 
 extern uint8_t BuzzerExecuteFlag;
 

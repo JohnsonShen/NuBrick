@@ -16,18 +16,30 @@
 #ifndef _REPORT_H
 #define _REPORT_H
 
-#define REPORT_AHRS_EULER         1 
-#define REPORT_AHRS_QUATERNION    2 
-#define REPORT_SENSORS_CALIBRATED 3 
-#define REPORT_SENSORS_RAW        4 
-#define REPORT_MOTOR_POWER        5 
-#define REPORT_PID                6
-#define REPORT_RATE_PID           7
-#define REPORT_VELOCITY           8
-#define REPORT_RC_STATUS          9
-#define REPORT_ALTHOLD_PID       10
-#define REPORT_ALTHOLD_STATUS    11
-#define REPORT_MODE_STATUS       12
+#include <stdio.h>
+#include "AHRSLib.h"
+#include "retarget.h"
+#include "Sensors.h"
+#include "tid.h"
+#include "tidmst.h"
+#include "timer1IRQ.h"
+#include "report_AP.h"
+
+#define REPORT_INDEX				0
+#define REPORT_BATTERY				1
+#define REPORT_BUZZER				2
+#define REPORT_LED    				3
+#define REPORT_AHRS					4
+#define REPORT_SONAR				5
+#define REPORT_TEMP					6
+#define REPORT_GAS					7
+#define REPORT_IR					8
+#define REPORT_KEY					9
+#define REPORT_DEVLINK				10
+
+#define REPORT_FEATURE 			      1
+#define REPORT_INPUT  						2
+#define REPORT_OUTPUT							3
 
 #define REPORT_FORMAT_TEXT        0 
 #define REPORT_FORMAT_BINARY      1 
@@ -39,4 +51,5 @@ extern char report_format;
 extern char stream_mode;
 void report_sensors(void);
 void report_status(void);
+void CommandProcess(void);
 #endif

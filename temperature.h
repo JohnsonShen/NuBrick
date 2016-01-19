@@ -20,8 +20,9 @@
 #include <stdlib.h>
 #include "M451Series.h"
 #include "timerctrl.h"
+#include "tid.h"
 
-void Init_DHT11_PWM1(void);
+void Init_DHT11_PWM0(void);
 void Get_DHT11(void);
 void DHT11GetDATA(void);
 

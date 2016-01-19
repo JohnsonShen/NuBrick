@@ -13,17 +13,17 @@
  * HCHEISH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef TIMER1IRQ_H_
-#define TIMER1IRQ_H_
+#ifndef KEY_H_
+#define KEY_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
 #include "timerctrl.h"
+#include "tid.h"
 
-void Timer1Init(void);
+void key_init(void);
 
-extern volatile uint32_t TMR1INTCount;
-extern volatile uint32_t TMR1TimerCounter;
+extern uint8_t keyState;
 
-#endif /* TIMER1IRQ_H_ */
+#endif /* KEY_H_ */

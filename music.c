@@ -13,17 +13,18 @@
  * HCHEISH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef TIMER1IRQ_H_
-#define TIMER1IRQ_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "M451Series.h"
-#include "timerctrl.h"
+#include "music.h"
 
-void Timer1Init(void);
+uint16_t MusicScale[32] = {							//buzzer song scale
+	G4, E4,	E4, E4,	F4, D4, D4, D4, C4, D4, E4, F4, G4, G4, G4, G4,
+	G4, E4,	E4, E4, F4, D4, D4, D4, C4, E6, G4, G4, C4, C4, C4, C4};
 
-extern volatile uint32_t TMR1INTCount;
-extern volatile uint32_t TMR1TimerCounter;
+uint16_t MusicTime[32] = {							//buzzer song scale Time
+	250, 250, 250, 250,	250, 250, 250, 250,	250, 250, 250, 250, 250, 250, 250, 250,
+	250, 250, 250, 250,	250, 250, 250, 250,	250, 250, 250, 250, 250, 250, 250, 250};
 
-#endif /* TIMER1IRQ_H_ */
+uint8_t MusicLevel[32] = {								//buzzer song scale Level
+	20, 20, 20,  0,	20, 20, 20,  0,	20, 20, 20, 20, 20, 20, 20, 0,
+	20, 20, 20,  0,	20, 20, 20,  0,	20, 20, 20, 20, 20, 20, 20, 0};
+

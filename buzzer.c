@@ -16,26 +16,18 @@
 
 #include "buzzer.h"
 
-uint8_t BuzzerExecuteFlag;
-
-/*
-uint16_t music[72] = {
-	E6 ,D6,	E6 ,D6,	E6 ,B5 ,D6 ,C6 ,A5 ,A5 , 0 , 0 ,
-	C5 ,E5 ,A5 ,B5 ,B5 , 0 ,C5 ,A5 ,B5 ,C6 ,C6 , 0 ,
-	E6 ,D6,	E6 ,D6,	E6 ,B5 ,D6 ,C6 ,A5 ,A5 , 0 , 0 ,
-	C5 ,E5 ,A5 ,B5 ,B5 , 0 ,E5 ,C6 ,B5 ,A5 ,A5 , 0 ,
-	B5 ,C6 ,D6 ,E6 ,E6 , 0 ,G5 ,F6 ,E6 ,D6 ,D6 , 0 ,
-	F5 ,E6 ,D6 ,C6 ,C6 , 0 ,E5 ,D6 ,C6 ,B5 ,B5 , 0 };
-	
-uint32_t pitch[72] = {
-	P250ms, P250ms, P250ms, P250ms,	P250ms, P250ms, P250ms, P250ms,	P250ms, P250ms, P250ms, P250ms,
-	P250ms, P250ms, P250ms, P250ms,	P250ms, P250ms, P250ms, P250ms,	P250ms, P250ms, P250ms, P250ms,
-	P250ms, P250ms, P250ms, P250ms,	P250ms, P250ms, P250ms, P250ms,	P250ms, P250ms, P250ms, P250ms,
-	P500ms, P500ms, P500ms, P500ms,	P500ms, P500ms, P500ms, P500ms,	P500ms, P500ms, P500ms, P500ms,
-	P500ms, P500ms, P500ms, P500ms,	P500ms, P500ms, P500ms, P500ms,	P500ms, P500ms, P500ms, P500ms,
-	P500ms, P500ms, P500ms, P500ms,	P500ms, P500ms, P500ms, P500ms,	P500ms, P500ms, P500ms, P500ms
-	};
-*/
+uint8_t BuzzerStartFlag;								//single buzzer cycle execute flag
+uint8_t BuzzerSingleExecuteFlag;						//single buzzer cycle execute flag
+uint8_t BuzzerSingleCounter;							//buzzer single buzzer cycle counter
+uint8_t BuzzerSongSize;							//buzzer single buzzer cycle counter
+uint16_t BuzzerVol;									//buzzer volume
+uint16_t BuzzerTone;										//buzzer Tone
+uint16_t BuzzerSong;										//buzzer song
+uint16_t BuzzerToneStartTime;											//buzzer period
+uint16_t BuzzerToneStopTime;										//buzzer duty
+uint32_t BuzzerTimeCnt;									//buzzer total time counter
+uint32_t BuzzerSingleTimeCnt;							//single buzzer cycle Time out flag
+uint32_t BuzzerLatency;									//single buzzer cycle Time out flag
 
 // ---------------------------------------------------------------------------------------
 //  PWM initialize setting
@@ -44,41 +36,219 @@ uint32_t pitch[72] = {
 // ---------------------------------------------------------------------------------------
 void Buzzer_Init()
 {
-		 /* Enable PWM module clock */
-    CLK_EnableModuleClock(PWM0_MODULE);
+	/* Enable PWM module clock */
+	CLK_EnableModuleClock(PWM0_MODULE);
 	
-	  /* Select PWM module clock source */
-    CLK_SetModuleClock(PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0);
+	/* Select PWM module clock source */
+	CLK_SetModuleClock(PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0);
 	
-	  /* Reset PWM1 channel 0~5 */
-    SYS_ResetModule(PWM0_RST);
+	/* Reset PWM1 channel 0~5 */
+	SYS_ResetModule(PWM0_RST);
 	
-	  /* Set PC9~PC11 multi-function pins for PWM1 Channel0~2  */
-    SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC0MFP_Msk);
-    SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_PWM0_CH0;
+	/* Set PC9~PC11 multi-function pins for PWM1 Channel0~2  */
+	SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC0MFP_Msk);
+	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_PWM0_CH0;
+	
+	/* Initialize parameter */
+	BuzzerSingleExecuteFlag=0;
+	BuzzerStartFlag=0;
+	
+	BuzDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
+	BuzDev.DevDesc.RptDesc_leng = 74;						//Report descriptor
+	BuzDev.DevDesc.InRptLeng = 3;								//Input report
+	BuzDev.DevDesc.OutRptLeng = 4;							//Output report
+	BuzDev.DevDesc.GetFeatLeng = 12;							//Get feature
+	BuzDev.DevDesc.SetFeatLeng = 12;							//Set feature
+	BuzDev.DevDesc.CID = 0;											//manufacturers ID
+	BuzDev.DevDesc.DID = 0;											//Product ID
+	BuzDev.DevDesc.PID = 0;											//Device firmware revision
+	BuzDev.DevDesc.UID = 0;											//Device Class type
+	BuzDev.DevDesc.UCID = 0;										//reserve
+	/* Feature */
+	BuzDev.Feature.data1.minimum = 0;						//Sleep period
+	BuzDev.Feature.data1.maximum = 2048;
+	BuzDev.Feature.data1.value = 100;
+	BuzDev.Feature.data2.minimum = 0;						//Volume
+	BuzDev.Feature.data2.maximum = 100;
+	BuzDev.Feature.data2.value = 20;
+	BuzDev.Feature.data3.minimum = 0;						//Tone
+	BuzDev.Feature.data3.maximum = 5000;
+	BuzDev.Feature.data3.value = G3;
+	BuzDev.Feature.data4.minimum = 0;						//Song
+	BuzDev.Feature.data4.maximum = 2;
+	BuzDev.Feature.data4.value = 0;
+	BuzDev.Feature.data5.minimum = 0;						//Period
+	BuzDev.Feature.data5.maximum = 2048;
+	BuzDev.Feature.data5.value = 200;
+	BuzDev.Feature.data6.minimum = 0;						//Duty
+	BuzDev.Feature.data6.maximum = 100;
+	BuzDev.Feature.data6.value = 20;
+	BuzDev.Feature.data7.minimum = 0;						//Latency
+	BuzDev.Feature.data7.maximum = 60;
+	BuzDev.Feature.data7.value = 1;
+	BuzDev.Feature.arg[0] = 1;
+	BuzDev.Feature.arg[1] = 2;
+	BuzDev.Feature.arg[2] = 3;
+	BuzDev.Feature.arg[3] = 4;
+	BuzDev.Feature.arg[4] = 5;
+	BuzDev.Feature.arg[5] = 6;
+	BuzDev.Feature.arg[6] = 7;
+	BuzDev.Feature.datalen[0] = 2;
+	BuzDev.Feature.datalen[1] = 1;
+	BuzDev.Feature.datalen[2] = 2;
+	BuzDev.Feature.datalen[3] = 1;
+	BuzDev.Feature.datalen[4] = 2;
+	BuzDev.Feature.datalen[5] = 1;
+	BuzDev.Feature.datalen[6] = 1;
+	BuzDev.Feature.dataNum = 7;
+	/* Input */
+	BuzDev.Input.data1.minimum = 0;								//Execute Flag
+	BuzDev.Input.data1.maximum = 1;
+	BuzDev.Input.data1.value = 0;
+	BuzDev.Input.arg[0] = 1;
+	BuzDev.Input.datalen[0] = 1;
+	BuzDev.Input.dataNum = 1;
+	/* Output */
+	BuzDev.Output.data1.minimum = 0;							//Start Flag
+	BuzDev.Output.data1.maximum = 1;
+	BuzDev.Output.data1.value = 0;
+	BuzDev.Output.data2.minimum = 0;							//Stop Flag
+	BuzDev.Output.data2.maximum = 1;
+	BuzDev.Output.data2.value = 0;
+	BuzDev.Output.arg[0] = 1;
+	BuzDev.Output.arg[1] = 2;
+	BuzDev.Output.datalen[0] = 1;
+	BuzDev.Output.datalen[1] = 1;
+	BuzDev.Output.dataNum = 2;
 	
 }
 
 // ----------------------------------------------------------------------------------------
-//  Start PWM Output
+//  Single PWM Output
 // ----------------------------------------------------------------------------------------
-void Buzzer_Alerm()
+//
+void Buzzer_Alerm(uint16_t freq, uint16_t duration, uint8_t level)
 {
-		BuzzerExecuteFlag=1;
-		/* set PWMB channel 0 output configuration */
-		PWM_ConfigOutputChannel(PWM0, 0, 1200, 20);
-		/* Enable PWM Output path for PWMB channel 0 */
-		PWM_EnableOutput(PWM0, PWM_CH_0_MASK);
-	  // Start
-    PWM_Start(PWM0, PWM_CH_0_MASK);
+	BuzzerSingleExecuteFlag=1;
+	/* set output time(ms) */
+	BuzzerSingleTimeCnt = getTickCount() + duration;
+	/* set PWMB channel 0 output configuration */
+	PWM_ConfigOutputChannel(PWM0, 0, freq, level);
+	/* Enable PWM Output path for PWMB channel 0 */
+	PWM_EnableOutput(PWM0, PWM_CH_0_MASK);
+	// Start
+	PWM_Start(PWM0, PWM_CH_0_MASK);
+}
+
+void Buzzer_SingleCheck(uint16_t freq, uint16_t duration, uint8_t level)
+{
+	if(BuzzerSingleExecuteFlag==0)
+	{
+		/* check if buzzer time out */
+		if(getTickCount() > BuzzerSingleTimeCnt)
+		{
+			/* Enable PWM Output path for PWMB channel 0 */
+			Buzzer_Alerm(freq, duration, level);
+			//PWM_DisableOutput(PWM0, PWM_CH_0_MASK); // disable PWM0 Channel 3
+			
+			/* check if buzzer single counter reach limit */
+			if(BuzzerSingleCounter==(BuzzerSongSize-1))
+			{
+				BuzzerSingleCounter=0;
+				BuzzerSingleExecuteFlag=0;
+			}
+		}
+	}
+	else if (BuzzerSingleExecuteFlag==1)
+	{
+		BuzzerSingleExecuteFlag=0;
+		BuzzerSingleCounter++;
+	}
 }
 
 // ----------------------------------------------------------------------------------------
-//  Stop PWM Output
+//  check PWM state
 // ----------------------------------------------------------------------------------------
 void Buzzer_Stop()
 {
+	PWM_DisableOutput(PWM0, PWM_CH_0_MASK); // disable PWM0 Channel 3
+	BuzzerStartFlag=0;
+	BuzzerSingleCounter = 0;
+	BuzzerSingleExecuteFlag=0;
+	BuzDev.Input.data1.value = 0;
+}
+void Buzzer_Check()
+{
+	uint32_t currentTimeCnt;
+	
+	/* check if buzzer time out */
+	currentTimeCnt = getTickCount()/1000;				//current time(s)
+	
+	if(currentTimeCnt > BuzzerLatency)
+	{
 		/* Diable PWM Output path for PWMB channel 0 */
-		PWM_DisableOutput(PWM0, BIT0); // disable PWM0 Channel 3
-		BuzzerExecuteFlag=0;
+		Buzzer_Stop();
+	}
+}
+
+// ----------------------------------------------------------------------------------------
+//  Buzzer start sing
+// ----------------------------------------------------------------------------------------
+void Buzzer_Song_Start()
+{
+	BuzzerLatency = getTickCount()/1000+BuzDev.Feature.data7.value;							//buzzer operation time(s)
+	BuzzerSong = BuzDev.Feature.data4.value;
+	BuzzerStartFlag=1;
+	BuzDev.Input.data1.value = 1;
+	switch (BuzzerSong)
+	{
+		case 0:
+		{
+			BuzzerVol = BuzDev.Feature.data2.value;
+			BuzzerToneStartTime = (uint16_t)(((float)BuzDev.Feature.data5.value/(float)100)*(float)BuzDev.Feature.data6.value);
+			BuzzerToneStopTime = BuzDev.Feature.data5.value-(uint16_t)(((float)BuzDev.Feature.data5.value/(float)100)*(float)BuzDev.Feature.data6.value);
+			BuzzerSongSize = 2;
+			BuzzerSingleCounter = 0;
+			BuzzerTone = BuzDev.Feature.data3.value;
+			Buzzer_Alerm(BuzzerTone, BuzzerToneStartTime, BuzzerVol);
+			break;
+		}
+		case 1:
+		{
+			BuzzerSongSize = sizeof(MusicScale)/2;
+			BuzzerSingleCounter = 0;
+			Buzzer_Alerm(MusicScale[BuzzerSingleCounter], MusicTime[BuzzerSingleCounter], MusicLevel[BuzzerSingleCounter]);
+			break;
+		}
+	}
+}
+// ----------------------------------------------------------------------------------------
+//  Buzzer singing
+// ----------------------------------------------------------------------------------------
+void Buzzer_Song_Check()
+{
+	if(BuzzerStartFlag==1)
+	{
+		switch (BuzzerSong)
+		{
+			case 0:
+			{
+				if(BuzzerSingleCounter == 0)	Buzzer_SingleCheck(BuzzerTone, BuzzerToneStartTime, BuzzerVol);
+				else if(BuzzerSingleCounter == 1)	Buzzer_SingleCheck(BuzzerTone, BuzzerToneStopTime, 0);
+				break;
+			}
+			case 1:
+			{
+				Buzzer_SingleCheck(MusicScale[BuzzerSingleCounter], MusicTime[BuzzerSingleCounter], MusicLevel[BuzzerSingleCounter]);
+				break;
+			}
+			case 2:
+			{
+				break;
+			}
+		}
+		
+		/* Check Time Out */
+		Buzzer_Check();
+	}
 }

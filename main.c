@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include "M451Series.h"
 #include "Def.h"
+#include "devCheck.h"
 #include "nvti2c.h"
 #include "timerctrl.h"
 #include "i2cdev.h"
@@ -24,9 +25,9 @@
 #include "scheduler.h"
 #include "battery.h"
 #include "buzzer.h"
-#include "ir.h"
-#include "timer3IRQ.h"
+#include "led.h"
 #include "Gas.h"
+#include "ir.h"
 #include "temperature.h"
 #include "retarget.h"
 #include "AHRSLib.h"
@@ -34,12 +35,12 @@
 #include "Report.h"
 #include "Calibrate.h"
 #include "ahrs.h"
-#ifdef SONAR
 #include "sonar.h"
-#endif
+#include "key.h"
 #include "timer1IRQ.h"
-#include "wakeupIRQ.h"
 #include "i2c_ms.h"
+#include "tiddev.h"
+#include "tidmst.h"
 
 volatile uint32_t RecentTimeCounter;
 volatile uint32_t MainTimeMSCounter;
@@ -97,184 +98,254 @@ void setup()
 	setupSystemClock();
 	setupUART();
 	setup_system_tick(SYSTEM_TICK_FREQ);
+	ID_Init();
+	GetID();
 	/* Init AHRS I2C */
-	I2C_Init();
 	/* ----Initialize I2C slave mode--- */
-	#ifdef I2C_MS_MASTER
-	I2C_MS_Master_Init();
-	#else
-	I2C_MS_Slave_Init();
+	if(devNum == 0)
+		I2C_MS_Master_Init();
+	else
+		I2C_MS_Slave_Init();
 	//I2CWakeUpInit();
-	#endif
+	TIDMstFirstInitFIN=0;
+	TIDMstInitFIN = 0;
+	TIDMstStage = 0;
+	TIDMstInitDevState = 1;
 	FlashInit();
-#ifdef BUZZER
-	Buzzer_Init();
-#endif
-#ifdef GAS
-	Gas_Init();
-#endif
-#ifdef BATTERY
-	Battery_Init();
-#endif
-#ifdef TEMPERATURE
-	Init_DHT11_PWM1();	
-#endif
-#ifdef AHRS
-	nvtAHRSInit();
-	SensorsInit();
-#endif
-#ifdef IR
-	IR_Init();
-#endif
-#ifdef SONAR
-	SonarInit();
-#endif
+	/*load TID feature from flash*/
+
+
+	if(devNum == 0)
+	{
+		Battery_Init();
+		GetFlashTID(&BatDev.Feature, devNum);
+	}
+	else if(devNum == 1)
+	{
+		Buzzer_Init();
+		GetFlashTID(&BuzDev.Feature, devNum);
+	}
+	else if(devNum == 2)
+	{
+		Led_Init();
+		GetFlashTID(&LedDev.Feature, devNum);
+	}
+	else if(devNum == 3)
+	{
+		I2C_Init();
+		nvtAHRSInit();
+		SensorsInit();
+		AhrsParaInit();
+		GetFlashTID(&AHRSDev.Feature, devNum);
+	}
+	else if(devNum == 4)
+	{
+		SonarInit();
+		GetFlashTID(&SonDev.Feature, devNum);
+	}
+	else if(devNum == 5)
+	{
+		Init_DHT11_PWM0();
+		GetFlashTID(&TempDev.Feature, devNum);
+	}
+	else if(devNum == 6)
+	{
+		Gas_Init();
+		GetFlashTID(&GasDev.Feature, devNum);
+	}
+	else if(devNum == 7)
+	{
+		IR_Init();
+		GetFlashTID(&IRDev.Feature, devNum);
+	}
+	else if(devNum == 8)
+	{
+		key_init();
+		GetFlashTID(&KeyDev.Feature, devNum);
+	}
+
+
+
+
+  /* TID initialize */
+	SlvDataInit();
+	MstDataInit();
+	
 	//==================TEST PIN==================
-	SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC5MFP_Msk));
-	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC5MFP_GPIO;
-	GPIO_SetMode(PC,BIT5,GPIO_MODE_OUTPUT);
-	PC5=1;
-	SYS->GPE_MFPH &= ~SYS_GPE_MFPH_PE9MFP_Msk;
-	GPIO_SetMode(PE,BIT9,GPIO_MODE_OUTPUT);
-	PE9=1;
+//	SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC5MFP_Msk));
+//	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC5MFP_GPIO;
+//	GPIO_SetMode(PC,BIT5,GPIO_MODE_OUTPUT);
+//	PC5=1;
+//	SYS->GPE_MFPH &= ~SYS_GPE_MFPH_PE9MFP_Msk;
+//	GPIO_SetMode(PE,BIT9,GPIO_MODE_OUTPUT);
+//	PE9=1;
 	//==================TEST PIN==================
 	// Sleep mode setting, put this at last setup line
 	Timer1Init();
-
-	#ifndef I2C_MS_MASTER	
-	/* Unlock protected registers */
-	SYS_UnlockReg();
-	CLK_PowerDown();
-	#endif
-
 }
 
-void CommandProcess()
-{
-	// Read incoming control messages
-	if (Serial_available() >= 2)
-	{
-		char start=Serial_read();
-		if (start == '@') {// Start of new control message
-			int command = Serial_read(); // Commands
-			if (command == 'h') {//Hook AHRS Stack Device
-				// Read ID
-				char id[2];
-				id[0] = GetChar();
-				id[1] = GetChar();
-				// Reply with synch message
-				printf("@HOOK");
-				Serial_write(id, 2);
-			}
-			else if (command == 'c') {// A 'c'calibration command
-				SensorCalibration();
-			}
-			else if (command == 'm') {// Set report 'm'ode
-				char mode = GetChar();
-			}
-			else if (command == 'f') {// Set report 'f'ormat
-				char format = GetChar();
-				if (format == 'b') {// Report 'b'inary format
-					report_format = REPORT_FORMAT_BINARY;
-				}
-				else if (format == 't') {// Report 't'ext format
-					report_format = REPORT_FORMAT_TEXT;
-				}
-			}
-			else if (command == 's') {// 's'tream output control
-				char mode = GetChar();
-				if (mode == 's') {// 's'tart stream
-					stream_mode = STREAM_START;
-				}
-				else if (mode == 'p') {// 'p'ause stream
-					stream_mode = STREAM_PAUSE;
-				}
-				else if (mode == 't') {// 't'oggle stream
-					if(stream_mode==STREAM_START)
-						stream_mode = STREAM_PAUSE;
-					else
-						stream_mode = STREAM_START;
-				}
-			}
-		}
-		else { 
-			printf("Unknown command.\n");
-		} // Skip character
-	}
-}
 // Main Control loop
 void loop()
 {
 	CommandProcess();
 	TaskScheduler();
 	PowerControl();
-	// =======================================================
-	//                Get data for once
-	// =======================================================
+	// ******************************************************
+	//                Get data for once erery 0.1s
+	// ******************************************************
 	if(TMR1INTCount != RecentTimeCounter)
 	{
 		MainTimeMSCounter = getTickCount();
-		// ------------SONAR----------------
-		#ifdef SONAR
-		SonarDetect();
-		#endif
-		// ---------TEMPERATURE-------------
-		#ifdef TEMPERATURE
-		Get_DHT11();				
-		#endif	
-		// -----------BUZZER----------------
-		#ifdef BUZZER
-		Buzzer_Alerm();
-		Buzzer_Stop();
-		#endif
-		// -----------BATTERY---------------
-		#ifdef BATTERY
-		GetBattery();
-		#endif
-		// -------------GAS-----------------
-		#ifdef GAS
-		GetGas();
-		#endif
+
+		// ========================================================
+		//									TID Master
+		// ========================================================
+		if(devNum == 0)
+		{
+			/* Master Store data */
+			TIDMstUpdateDevState();
+			/* Master recheck device */
+			if(TIDMstFirstInitFIN==1)
+			{
+				if(TMR1TimerCounter > 10)
+				{
+					if(I2CMstEndFlag==1)
+					{
+						TIDMstInitFIN=0;
+						TMR1TimerCounter=0;
+						I2C_Close(I2C_MS_PORT);
+						I2C_MS_Master_Restart();
+					}
+				}
+				else
+				{
+					TMR1TimerCounter++;
+				}
+			}
+			GetBattery();
+		}
+		// ========================================================
+		//									TID Slave
+		// ========================================================
 		// -------------AHRS----------------
-		#ifdef AHRS
-		SensorsRead(SENSOR_ACC|SENSOR_GYRO,1);
-		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
-		if(AhrsRead(1,1))
-		printf("AHRS IS TRIGGERED.\n");
-		else
-		printf("AHRS is fine.\n");
-		#endif
+		else if(devNum == 3)
+		{
+			SensorsRead(SENSOR_ACC|SENSOR_GYRO,1);
+			nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
+			AhrsRead(AHRSDev.Feature.data2.value, AHRSDev.Feature.data3.value, AHRSDev.Output.data1.value);				//(Vibration Level, alerm time, clear flag)
+		}
+		// ------------SONAR----------------
+		else if(devNum == 4)
+		SonarDetect();
+		// ---------TEMPERATURE-------------
+		else if(devNum == 5)
+		{
+			if(TMR1TimerCounter == 3)
+			{
+				Get_DHT11();
+				TMR1TimerCounter = 0;
+			}
+			else
+			{
+				TMR1TimerCounter++;
+			}
+		}			
+		// -------------GAS-----------------
+		else if(devNum == 6)
+			GetGas();
 		// --------------IR-----------------
-		#ifdef IR
-		SendIR();
-		#endif
-		// --------------I2C Master-----------------
-		#ifdef I2C_MS_MASTER
-		I2C_MASTER_Read_Write_Start(0x15, 0);
-		#endif
-		
+		else if(devNum == 7)
+		{
+			if(IRDev.Output.data1.value == 1)																			//Period, Duty
+			{
+				IRTx_StartFlag = 1;
+				IR_LearnedFlag = IRDev.Feature.data3.value;
+				IR_Tx_LearnedDataByten = IRDev.Feature.data5.value;
+				IRDev.Output.data1.value=0;
+			}
+			SendIR();
+		}
+
 		RecentTimeCounter = TMR1INTCount;
 	}
-	// =======================================================
-	//          Get data until execution done
-	// =======================================================
-	// ------------SONAR TIMEOUT----------------
-	#ifdef SONAR
-	SonarTimeOut();
-	#endif
-	// --------------IR TIMEOUT-----------------
-	#ifdef IR
-	ReceiveIR();
-	#endif
-	// ---------Temprature TIMEOUT--------------
-	#ifdef TEMPERATURE
-	DHT11GetDATA();				
-	#endif	
-	// --------------I2C Master-----------------
-	#ifdef I2C_MS_MASTER
-	I2C_MASTER_Read_Write_Con(0x15, AHRS_I2CDATA, AHRS_I2CDATALEN, I2C_READ);
-	#endif
+	
+	// =============TID Master handle received data===============
+	// -----------TID Master handle received data------------
+	if(devNum == 0)
+	{
+		if(TIDMstInitFIN==0)
+		{
+			TIDMst_GetDev();
+		}
+		else if(TIDMstInitFIN==1)
+		{
+			TIDMstDevTRx();
+		}
+	}
+	// ====================  SLAVE PART  ======================
+	// -----------TID slave handle received data--------------
+	else
+	{
+		if(I2CMS_SlvRxFin==1)
+		TID_SlvRxUpdate();
+	}
+	// -----------Slave part excute subfunction--------------
+	/*  BUZZER  */
+	if(devNum == 1)
+	{
+		if(BuzDev.Output.data2.value==0)
+		{
+			if(BuzDev.Output.data1.value == 1)																			//Period, Duty
+			{
+				Buzzer_Song_Start();
+				BuzDev.Output.data1.value = 0;																																		//Song
+			}
+		}
+		else
+		{
+			Buzzer_Stop();
+		}
+		Buzzer_Song_Check();
+	}
+	/*  LED  */
+	else if(devNum == 2)
+	{
+		if(LedDev.Output.data2.value==0)
+		{
+			if(LedDev.Output.data1.value == 1)																			//Period, Duty
+			{
+				Led_Blink_Start();
+				LedDev.Output.data1.value=0;
+			}
+		}
+		else
+		{
+			Led_Stop();
+		}
+		Led_Blink_Check();
+	}
+	/*   SONAR   */
+	else if(devNum == 4)
+	SonarTimeOutCheck();
+	/*   Temprature TIMEOUT   */
+	else if(devNum == 5)
+	{
+		DHT11GetDATA();				
+	}
+	/*   IR TIMEOUT   */
+	else if(devNum == 7)
+	{
+		if(IRDev.Output.data2.value == 1)																			
+		{
+			IR_LearnMode = 1;
+			IRDev.Output.data2.value=0;
+		}
+		ReceiveIR();
+	}
 
+	// --------------TID Slave Store data-----------------
+	if(devNum != 0)
+	SlvDataStore();
 }
 
 /*---------------------------------------------------------------------------------------------------------*/

@@ -19,7 +19,8 @@
 /*----------------------------------------------------------------------------------------*/
 /* Define global variables and constants                                                  */
 /*----------------------------------------------------------------------------------------*/
-uint8_t  BatteryData;
+uint16_t  BatteryData;
+int32_t 	BatOverTimeCounter;			//Sonar alerm time
 
 /* ---------------------------------------------------------------------------------------*/
 /*  ADC initialize setting																																*/
@@ -53,6 +54,44 @@ void Battery_Init()
 	/* Enable the sample module 0 interrupt.  */
 	EADC_ENABLE_INT(EADC, 0x2);//Enable sample module A/D ADINT0 interrupt.
 	EADC_ENABLE_SAMPLE_MODULE_INT(EADC, 1, 0x2);//Enable sample module 0 interrupt.
+
+	BatDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
+	BatDev.DevDesc.RptDesc_leng = 36;						//Report descriptor
+	BatDev.DevDesc.InRptLeng = 5;								//Input report
+	BatDev.DevDesc.OutRptLeng = 0;							//Output report
+	BatDev.DevDesc.GetFeatLeng = 6;							//Get feature
+	BatDev.DevDesc.SetFeatLeng = 6;							//Set feature
+	BatDev.DevDesc.CID = 0;											//manufacturers ID
+	BatDev.DevDesc.DID = 0;											//Product ID
+	BatDev.DevDesc.PID = 0;											//Device firmware revision
+	BatDev.DevDesc.UID = 0;											//Device Class type
+	BatDev.DevDesc.UCID = 0;										//reserve
+	/* Feature */
+	BatDev.Feature.data1.minimum = 0;						//Sleep period
+	BatDev.Feature.data1.maximum = 1024;
+	BatDev.Feature.data1.value = 100;
+	BatDev.Feature.data2.minimum = 0;						//Battery alerm value
+	BatDev.Feature.data2.maximum = 100;
+	BatDev.Feature.data2.value = 50;
+	BatDev.Feature.arg[0] = 1;
+	BatDev.Feature.arg[1] = 2;
+	BatDev.Feature.datalen[0] = 2;
+	BatDev.Feature.datalen[1] = 2;
+	BatDev.Feature.dataNum = 2;
+	/* Input */
+	BatDev.Input.data1.minimum = 0;							//Battery value
+	BatDev.Input.data1.maximum = 100;
+	BatDev.Input.data1.value = 100;
+	BatDev.Input.data2.minimum = 0;							//Over flag
+	BatDev.Input.data2.maximum = 1;
+	BatDev.Input.data2.value = 0;
+	BatDev.Input.arg[0] = 1;
+	BatDev.Input.arg[1] = 2;
+	BatDev.Input.datalen[0] = 2;
+	BatDev.Input.datalen[1] = 1;
+	BatDev.Input.dataNum = 2;
+	/* Output */
+	BatDev.Output.dataNum = 0;
 }
 
 // ----------------------------------------------------------------------------------------
@@ -68,58 +107,26 @@ void GetBattery(void)
 	while(EADC_GET_INT_FLAG(EADC, 0x2) == 0);
 	//Trigger sample module 0 to start A/D conversion
 	BatteryData = ((EADC_GET_CONV_DATA(EADC, 1))*100/4096);
+	
+	/* Update TID value */
+	BatDev.Input.data1.value = BatteryData;
+	if(BatDev.Input.data1.value < BatDev.Feature.data2.value)
+	{
+		BatDev.Input.data2.value = 1;
+		BatOverTimeCounter = getTickCount()+ BatDev.Feature.data3.value*1000;
+	}
+	/* reset alerm flag after 10s */
+	if(BatDev.Input.data2.value == 1)
+	{
+		if(getTickCount() > BatOverTimeCounter)
+			BatDev.Input.data2.value = 0;
+		if(BatDev.Output.data1.value == 1)
+			BatDev.Input.data2.value = 0;
+	}
 }
 
 void PowerControl()
 {
-	int i;
-	// =======================================================
-	//                Print data & Sleep
-	// =======================================================
-	if( 1
-#ifdef SONAR	
-		&& (SonarExecuteFLAG == 0)
-#endif
-#ifdef TEMPERATURE
-		&& (DHT11ExecuteFlag == 0)
-#endif
-#ifdef IR
-		&& (IR_TxExecuteFLAG == 0)
-		&& (IR_RxExecute_Flag == 0)
-#endif
-#ifdef BUZZER
-		&& (BuzzerExecuteFlag == 0)
-#endif
-#ifdef I2C_MS_MASTER
-		&& (I2CMstEndFlag == 1)
-#else
-		&& (I2CMSData[SLEEP_REG]==0)
-#endif
-	)
-	{
-#ifdef SONAR	
-		printf("Sonar distance = %f\n",Sonar_Distance);
-#endif
-#ifdef IR
-		printf("IR DATA[0]= %X, IR DATA[1]= %X, IR DATA[2]=%X, IR DATA[3]=%X\n",IR_DATA_OUT[0],IR_DATA_OUT[1],IR_DATA_OUT[2],IR_DATA_OUT[3]);
-#endif
-#ifdef BATTERY
-		printf("BatteryData = %d\n",BatteryData);
-#endif
-#ifdef GAS
-		printf("GasData = %d\n",GasData);
-#endif
-#ifdef TEMPERATURE
-		printf("DHT11_Humidity=%d,DHT11_temperature=%d\n", DHT11_Humidity,DHT11_temperature);
-#endif
-		for(i = 0;i < 31;i++)
-		printf("Data[%d]=%d\n",i,I2CMSData[i]);
-		printf("Whole time:%d\n",(getTickCount()-MainTimeMSCounter));
-		printf("I'm sleep.\n");
-		while(((UART0->FIFOSTS) & UART_FIFOSTS_TXEMPTY_Msk) == 0);
-		SYS_UnlockReg();
-		CLK_PowerDown();
-		SYS_LockReg();
-	}
+	
 }
 

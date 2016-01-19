@@ -13,17 +13,18 @@
  * HCHEISH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef TIMER1IRQ_H_
-#define TIMER1IRQ_H_
+#ifndef MUSIC_H_
+#define MUSIC_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
+#include "pwm.h"
 #include "timerctrl.h"
+#include "freq_note.h"
 
-void Timer1Init(void);
+extern uint16_t MusicScale[32];
+extern uint16_t MusicTime[32];
+extern uint8_t MusicLevel[32];
 
-extern volatile uint32_t TMR1INTCount;
-extern volatile uint32_t TMR1TimerCounter;
-
-#endif /* TIMER1IRQ_H_ */
+#endif /* MUSIC_H_ */

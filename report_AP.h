@@ -10,20 +10,33 @@
  *                                                             *
  * Written by MB40 for Nuvoton Technology.                     *
  * tlshen@nuvoton.com/tzulan611126@gmail.com                   *
- * HCHEISH@nuvoton.com                                         *
+ *                                                             *
  *=============================================================*
  */
-#ifndef TIMER1IRQ_H_
-#define TIMER1IRQ_H_
+#ifndef _REPORT_AP_H
+#define _REPORT_AP_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include "M451Series.h"
-#include "timerctrl.h"
+#include "retarget.h"
+#include "tid.h"
+#include "tidmst.h"
+#include "flash.h"
 
-void Timer1Init(void);
+#define INDEX_REPORT_LENGTH 					8
+#define DEVICE_NUMBER			 				9
+#define INDEX_DATA_LENGTH						34
+#define DEVICELINK_REPORT_LENGTH 				8
+#define DEVICELINK_DATA_LENGTH					6
 
-extern volatile uint32_t TMR1INTCount;
-extern volatile uint32_t TMR1TimerCounter;
+void report_index_binary(void);
+void report_devLink_binary(void);
+void report_binary(TID_Device);
+void report_buzzer_binary(void);
+void report_led_binary(void);
+void report_ahrs_binary(void);
+void SetPara_Binary(void);
 
-#endif /* TIMER1IRQ_H_ */
+extern int8_t reportNewTabFlag;
+extern int8_t reportAPFlag;
+
+#endif

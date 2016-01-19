@@ -10,20 +10,29 @@
  *                                                             *
  * Written by MB40 for Nuvoton Technology.                     *
  * tlshen@nuvoton.com/tzulan611126@gmail.com                   *
- * HCHEISH@nuvoton.com                                         *
+ * HCHSIEH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef TIMER1IRQ_H_
-#define TIMER1IRQ_H_
+
+#ifndef TIDDEV_H_
+#define TIDDEV_H_
 
 #include <stdio.h>
-#include <stdlib.h>
 #include "M451Series.h"
-#include "timerctrl.h"
+#include "devCheck.h"
+#include "tid.h"
+#include "i2c_ms.h"
 
-void Timer1Init(void);
+void SlvDataInit(void);
+void SlvDataStore(void);
 
-extern volatile uint32_t TMR1INTCount;
-extern volatile uint32_t TMR1TimerCounter;
+void SlvBuzDataInit(void);
+void SlvBuzDataStore(void);
 
-#endif /* TIMER1IRQ_H_ */
+extern uint8_t TIDDevEnFlag[8];
+extern uint8_t TIDMstStage;
+extern uint8_t TIDMstInitFIN;
+extern uint8_t TIDMstFirstInitFIN;
+extern uint16_t TIDMstInitDevState;
+
+#endif //TIDDEV

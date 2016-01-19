@@ -10,20 +10,19 @@
  *                                                             *
  * Written by MB40 for Nuvoton Technology.                     *
  * tlshen@nuvoton.com/tzulan611126@gmail.com                   *
- * HCHEISH@nuvoton.com                                         *
+ * HCHSIEH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef TIMER1IRQ_H_
-#define TIMER1IRQ_H_
+ 
+#ifndef DEVCHECK_H_
+#define DEVCHECK_H_
 
 #include <stdio.h>
-#include <stdlib.h>
 #include "M451Series.h"
-#include "timerctrl.h"
 
-void Timer1Init(void);
+void ID_Init(void);
+void GetID(void);
 
-extern volatile uint32_t TMR1INTCount;
-extern volatile uint32_t TMR1TimerCounter;
+extern volatile uint32_t devNum;
 
-#endif /* TIMER1IRQ_H_ */
+#endif //DEVCHECK

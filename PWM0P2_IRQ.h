@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include "M451Series.h"
 #include "timerctrl.h"
+#include "devCheck.h"
 #include "IR.h"
 #include "sonar.h"
 

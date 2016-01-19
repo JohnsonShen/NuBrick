@@ -451,6 +451,11 @@
               <FilePath>.\scheduler.c</FilePath>
             </File>
             <File>
+              <FileName>battery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\battery.c</FilePath>
+            </File>
+            <File>
               <FileName>buzzer.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\buzzer.c</FilePath>
@@ -496,6 +501,36 @@
               <FilePath>.\report.c</FilePath>
             </File>
             <File>
+              <FileName>i2c_ms.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\i2c_ms.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer1IRQ.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\timer1IRQ.c</FilePath>
+            </File>
+            <File>
+              <FileName>tid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\tid.c</FilePath>
+            </File>
+            <File>
+              <FileName>tiddev.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\tiddev.c</FilePath>
+            </File>
+            <File>
+              <FileName>tidmst.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\tidmst.c</FilePath>
+            </File>
+            <File>
+              <FileName>ahrs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ahrs.c</FilePath>
+            </File>
+            <File>
               <FileName>Calibrate.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Calibrate.c</FilePath>
@@ -511,19 +546,14 @@
               <FilePath>.\sensors.c</FilePath>
             </File>
             <File>
-              <FileName>ahrs.c</FileName>
+              <FileName>music.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\ahrs.c</FilePath>
+              <FilePath>.\music.c</FilePath>
             </File>
             <File>
-              <FileName>battery.c</FileName>
+              <FileName>report_AP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\battery.c</FilePath>
-            </File>
-            <File>
-              <FileName>PWM1P1_IRQ.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\PWM1P1_IRQ.c</FilePath>
+              <FilePath>.\report_AP.c</FilePath>
             </File>
             <File>
               <FileName>PWM0P2_IRQ.c</FileName>
@@ -531,24 +561,34 @@
               <FilePath>.\PWM0P2_IRQ.c</FilePath>
             </File>
             <File>
+              <FileName>PWM0P0_IRQ.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\PWM0P0_IRQ.c</FilePath>
+            </File>
+            <File>
               <FileName>timer3IRQ.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\timer3IRQ.c</FilePath>
             </File>
             <File>
-              <FileName>timer1IRQ.c</FileName>
+              <FileName>key.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\timer1IRQ.c</FilePath>
+              <FilePath>.\key.c</FilePath>
             </File>
             <File>
-              <FileName>wakeupIRQ.c</FileName>
+              <FileName>GPC_IRQ.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\wakeupIRQ.c</FilePath>
+              <FilePath>.\GPC_IRQ.c</FilePath>
             </File>
             <File>
-              <FileName>i2c_ms.c</FileName>
+              <FileName>GPE_IRQ.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\i2c_ms.c</FilePath>
+              <FilePath>.\GPE_IRQ.c</FilePath>
+            </File>
+            <File>
+              <FileName>devCheck.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\devCheck.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -606,14 +646,14 @@
               <FilePath>..\..\..\Library\StdDriver\src\eadc.c</FilePath>
             </File>
             <File>
-              <FileName>AHRSLibM4.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>.\AHRSLibM4.lib</FilePath>
-            </File>
-            <File>
               <FileName>retarget.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\retarget.c</FilePath>
+            </File>
+            <File>
+              <FileName>AHRSLibM4.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>.\AHRSLibM4.lib</FilePath>
             </File>
           </Files>
         </Group>
@@ -706,6 +746,51 @@
               <FilePath>.\report.h</FilePath>
             </File>
             <File>
+              <FileName>i2c_ms.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\i2c_ms.h</FilePath>
+            </File>
+            <File>
+              <FileName>middlei2c.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\middlei2c.h</FilePath>
+            </File>
+            <File>
+              <FileName>retarget.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\retarget.h</FilePath>
+            </File>
+            <File>
+              <FileName>timer1IRQ.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\timer1IRQ.h</FilePath>
+            </File>
+            <File>
+              <FileName>tid.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\tid.h</FilePath>
+            </File>
+            <File>
+              <FileName>tiddev.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\tiddev.h</FilePath>
+            </File>
+            <File>
+              <FileName>tidmst.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\tidmst.h</FilePath>
+            </File>
+            <File>
+              <FileName>ahrs.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\ahrs.h</FilePath>
+            </File>
+            <File>
+              <FileName>AHRSLib.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\AHRSLib.h</FilePath>
+            </File>
+            <File>
               <FileName>Calibrate.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Calibrate.h</FilePath>
@@ -716,29 +801,19 @@
               <FilePath>.\MPU6050.h</FilePath>
             </File>
             <File>
-              <FileName>retarget.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\retarget.h</FilePath>
-            </File>
-            <File>
               <FileName>sensors.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\sensors.h</FilePath>
             </File>
             <File>
-              <FileName>AHRSLib.h</FileName>
+              <FileName>music.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\AHRSLib.h</FilePath>
+              <FilePath>.\music.h</FilePath>
             </File>
             <File>
-              <FileName>ahrs.h</FileName>
+              <FileName>report_AP.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\ahrs.h</FilePath>
-            </File>
-            <File>
-              <FileName>PWM1P1_IRQ.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\PWM1P1_IRQ.h</FilePath>
+              <FilePath>.\report_AP.h</FilePath>
             </File>
             <File>
               <FileName>PWM0P2_IRQ.h</FileName>
@@ -746,19 +821,29 @@
               <FilePath>.\PWM0P2_IRQ.h</FilePath>
             </File>
             <File>
+              <FileName>PWM0P0_IRQ.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\PWM0P0_IRQ.h</FilePath>
+            </File>
+            <File>
               <FileName>timer3IRQ.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\timer3IRQ.h</FilePath>
             </File>
             <File>
-              <FileName>timer1IRQ.h</FileName>
+              <FileName>key.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\timer1IRQ.h</FilePath>
+              <FilePath>.\key.h</FilePath>
             </File>
             <File>
-              <FileName>i2c_ms.h</FileName>
+              <FileName>GPC_IRQ.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\i2c_ms.h</FilePath>
+              <FilePath>.\GPC_IRQ.h</FilePath>
+            </File>
+            <File>
+              <FileName>GPE_IRQ.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\GPE_IRQ.h</FilePath>
             </File>
           </Files>
         </Group>

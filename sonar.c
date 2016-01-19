@@ -26,7 +26,6 @@
 // ***********************************************************
 
 #include "sonar.h"
-#include "timerctrl.h"
 
 float SonarDistance_Scale;				//Distance between sonar and object
 float Sonar_Distance;							//Distance between sonar and object		
@@ -34,7 +33,8 @@ float Sonar_Distance_OUT;					//Distance between sonar and object
 uint32_t Sonar_caprure_timer;			//Sonar PWM capture time between rising and falling
 uint32_t SonarTimeOutFlag;				//Sonar time out flag	
 uint8_t SonarExecuteFLAG;					//Sonar start to detect distance	
-uint8_t SonarErrorCounter;						//Sonar start to detect distance	
+uint8_t SonarErrorCounter;				//Sonar start to detect distance
+int32_t SonarOverTimeCounter;			//Sonar alerm time
 
 void SonarInit()
 {
@@ -102,7 +102,45 @@ void SonarInit()
 	PWM0->CAPCTL |= PWM_CAPCTL_FCRLDEN4_Msk;
 	
 	/* Wait until PWM0 channel 5 Timer start to count */
-  while((PWM0->CNT[4]) == 0);	
+	while((PWM0->CNT[4]) == 0);	
+
+	SonDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
+	SonDev.DevDesc.RptDesc_leng = 36;						//Report descriptor
+	SonDev.DevDesc.InRptLeng = 5;								//Input report
+	SonDev.DevDesc.OutRptLeng = 0;								//Output report
+	SonDev.DevDesc.GetFeatLeng = 6;							//Get feature
+	SonDev.DevDesc.SetFeatLeng = 6;							//Set feature
+	SonDev.DevDesc.CID = 0;											//manufacturers ID
+	SonDev.DevDesc.DID = 0;											//Product ID
+	SonDev.DevDesc.PID = 0;											//Device firmware revision
+	SonDev.DevDesc.UID = 0;											//Device Class type
+	SonDev.DevDesc.UCID = 0;											//reserve
+	/* Feature */
+	SonDev.Feature.data1.minimum = 0;						//Sleep period
+	SonDev.Feature.data1.maximum = 1024;
+	SonDev.Feature.data1.value = 100;
+	SonDev.Feature.data2.minimum = 0;						//alerm distance
+	SonDev.Feature.data2.maximum = 200;
+	SonDev.Feature.data2.value = 10;
+	SonDev.Feature.arg[0] = 1;
+	SonDev.Feature.arg[1] = 2;
+	SonDev.Feature.datalen[0] = 2;
+	SonDev.Feature.datalen[1] = 2;
+	SonDev.Feature.dataNum = 2;
+	/* Input */
+	SonDev.Input.data1.minimum = 0;							//sensored disance
+	SonDev.Input.data1.maximum = 400;
+	SonDev.Input.data1.value = 100;
+	SonDev.Input.data2.minimum = 0;							//Over flag
+	SonDev.Input.data2.maximum = 1;
+	SonDev.Input.data2.value = 0;
+	SonDev.Input.arg[0] = 1;
+	SonDev.Input.arg[1] = 2;
+	SonDev.Input.datalen[0] = 2;
+	SonDev.Input.datalen[1] = 1;
+	SonDev.Input.dataNum = 2;
+	/* Output */
+	SonDev.Output.dataNum = 0;
 	
 }
 
@@ -116,8 +154,29 @@ void SonarDetect()
 	}
 }
 
-void SonarTimeOut()
+void SonarTimeOutCheck()
 {
+	/* Update TID value */
+	SonDev.Input.data1.value = Sonar_Distance_OUT;
+	if(SonDev.Input.data1.value < SonDev.Feature.data2.value)
+	{
+		SonDev.Input.data2.value = 1;
+		//SonarOverTimeCounter = getTickCount()+ SonDev.Feature.data3.value*1000;
+	}
+	else
+	{
+		SonDev.Input.data2.value = 0;
+	}
+	
+	/* reset alerm flag after 10s */
+//	if(SonDev.Input.data2.value == 1)
+//	{
+//		if(getTickCount() > SonarOverTimeCounter)
+//			SonDev.Input.data2.value = 0;
+//		if(SonDev.Output.data1.value == 1)
+//			SonDev.Input.data2.value = 0;
+//	}
+	
 	/* Time out */
 	if( (SonarExecuteFLAG == 1) && (getTickCount()-SonarTimeOutFlag>100))
 	{

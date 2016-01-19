@@ -26,16 +26,20 @@
 #define CAL_BASE_ACC	(CAL_BASE_GYRO + GYRO_CAL_DATA_SIZE + FIELD_VALID_SIZE)
 #define CAL_BASE_MAG	(CAL_BASE_ACC + ACC_CAL_DATA_SIZE + FIELD_VALID_SIZE)
 
-
+//TID section
+#define TID_SIZE 11
+#define TID_BASE (CAL_BASE_MAG + MAG_CAL_DATA_SIZE + FIELD_VALID_SIZE + QUALITY_FACTOR_SIZE)
 
 void FlashInit(void);
 void UpdateFlashCounter(void);
-uint32_t GetFlashCounter(void);
 void UpdateFlashCal(int8_t sensorType, bool erase);
+void DATA_FLASH_Write(uint32_t ,uint32_t);
 bool GetFlashCal(int8_t sensorType, float* Cal);
 void TestFloat(void);
-float GetFloatCounter(void);
+int16_t dw2i16(int32_t dw);
+int32_t i162dw(int16_t i16);
 int32_t float2dw(float f);
+uint32_t DATA_FLASH_Read(uint32_t);
 float dw2float(int32_t dw);
-void FlashControl(void);
+
 #endif

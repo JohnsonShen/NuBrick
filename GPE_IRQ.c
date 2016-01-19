@@ -13,17 +13,19 @@
  * HCHEISH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef TIMER1IRQ_H_
-#define TIMER1IRQ_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "M451Series.h"
-#include "timerctrl.h"
+#include "GPE_IRQ.h"
 
-void Timer1Init(void);
-
-extern volatile uint32_t TMR1INTCount;
-extern volatile uint32_t TMR1TimerCounter;
-
-#endif /* TIMER1IRQ_H_ */
+void GPE_IRQHandler(void)
+{
+    /* To check if PE.0 interrupt occurred */
+    if(GPIO_GET_INT_FLAG(PE, BIT0))
+    {
+        GPIO_CLR_INT_FLAG(PE, BIT0);
+		if(PE0 == 0)
+			keyState |= 1 << 5;
+		else if(PE0 == 1)
+			keyState &= ~(1 << 5);
+		KeyDev.Input.data1.value = keyState;
+    }
+}

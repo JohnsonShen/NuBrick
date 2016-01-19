@@ -19,17 +19,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
-#include "temperature.h"
-#include "i2c_ms.h"
-#include "ir.h"
-#include "buzzer.h"
-#include "gas.h"
+#include "tid.h"
 
 void Battery_Init(void);
 void GetBattery(void);
 void PowerControl(void);
 
-extern uint8_t  BatteryData;
-extern volatile uint32_t MainTimeMSCounter;
+extern uint16_t  BatteryData;
 
 #endif /* BATTERY_H_ */
