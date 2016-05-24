@@ -48,6 +48,11 @@ void Buzzer_Init()
 	/* Set PC9~PC11 multi-function pins for PWM1 Channel0~2  */
 	SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC0MFP_Msk);
 	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_PWM0_CH0;
+	//LED
+	SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk);
+	SYS->GPA_MFPL |= SYS_GPA_MFPL_PA2MFP_GPIO;
+	GPIO_SetMode(PA,BIT2,GPIO_MODE_OUTPUT);
+	PA2 = 1;
 	
 	/* Initialize parameter */
 	BuzzerSingleExecuteFlag=0;
@@ -111,7 +116,7 @@ void Buzzer_Init()
 	/* Output */
 	BuzDev.Output.data1.minimum = 0;							//Start Flag
 	BuzDev.Output.data1.maximum = 1;
-	BuzDev.Output.data1.value = 0;
+	BuzDev.Output.data1.value = 1;
 	BuzDev.Output.data2.minimum = 0;							//Stop Flag
 	BuzDev.Output.data2.maximum = 1;
 	BuzDev.Output.data2.value = 0;
@@ -229,6 +234,7 @@ void Buzzer_Song_Check()
 {
 	if(BuzzerStartFlag==1)
 	{
+		PA2 = 0;
 		switch (BuzzerSong)
 		{
 			case 0:
@@ -251,4 +257,26 @@ void Buzzer_Song_Check()
 		/* Check Time Out */
 		Buzzer_Check();
 	}
+	else
+	{
+		PA2 = 1;
+		CLK_PowerDown();
+	}
+}
+
+void Buzzer_Control(void)
+{
+    if(BuzDev.Output.data2.value==0)
+    {
+        if(BuzDev.Output.data1.value == 1)																			//Period, Duty
+        {
+            Buzzer_Song_Start();
+            BuzDev.Output.data1.value = 0;																																		//Song
+        }
+    }
+    else
+    {
+        Buzzer_Stop();
+    }
+    Buzzer_Song_Check();
 }

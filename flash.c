@@ -26,10 +26,7 @@
 #include "AHRSLib.h"
 #include "flash.h"
 #ifdef M451
-#define PAGE_SIZE 512 //2K Bytes
 uint32_t data_buff[PAGE_SIZE];
-#else
-#define PAGE_SIZE 128 //512 Bytes
 #endif
 uint32_t DATA_Flash_Start_ADD;
 uint32_t FlashCounter;
@@ -45,18 +42,15 @@ void DATA_FLASH_Write(uint32_t u32addr,uint32_t u32data)
 	uint32_t i=0;
 #ifdef M451
 	SYS_UnlockReg();
-	FMC_Open();
-	
+
 	for(i=0;i<PAGE_SIZE;i++)
 		data_buff[i] = FMC_Read(DATA_Flash_Start_ADD+i*4+ u32addr/PAGE_SIZE*2048);
-	
 	FMC_Erase(DATA_Flash_Start_ADD+u32addr/PAGE_SIZE*2048);
 	data_buff[u32addr%PAGE_SIZE]=u32data;
-	
-	for(i=0; i<PAGE_SIZE; i++) 
+
+	for(i=0; i<PAGE_SIZE; i++)
 		FMC_Write(DATA_Flash_Start_ADD+i*4+ u32addr/PAGE_SIZE*2048, data_buff[i]);
-	
-	FMC_Close();
+
 	SYS_LockReg();
 #else
 	uint32_t data_buff[PAGE_SIZE];
@@ -88,11 +82,7 @@ uint32_t DATA_FLASH_Read(uint32_t u32add)
 {
 	uint32_t u32data;
 #ifdef M451
-	SYS_UnlockReg();
-	FMC_Open();
 	u32data = FMC_Read(u32add*4+DATA_Flash_Start_ADD);
-	FMC_Close();
-	SYS_LockReg();
 #else
 	__set_PRIMASK(1);
 	UNLOCKREG();
@@ -145,7 +135,6 @@ void FlashInit()
 	FMC_Open();
 	SetDataFlashBase(DATA_FLASH_TEST_BASE);
 	DATA_Flash_Start_ADD = FMC_ReadDataFlashBaseAddr();
-	FMC_Close();
 	SYS_LockReg();
 #else
 	DrvFMC_EnableISP();

@@ -15,6 +15,7 @@
  */
 
 #include "ir.h"
+#include "timer1IRQ.h"
 
 uint8_t TxIR_CODE[4];
 uint8_t RxIR_CODE[4];
@@ -88,8 +89,8 @@ void IR_Init(void)
 	IRDev.Feature.data3.value = 0;
 	IRDev.Feature.data4.minimum = 0;						//number of original data
 	IRDev.Feature.data4.maximum = 1;
-	IRDev.Feature.data4.value = 0;
-	IRDev.Feature.data5.minimum = 0;						//number of learned data
+	IRDev.Feature.data4.value = 1;
+	IRDev.Feature.data5.minimum = 1;						//number of learned data
 	IRDev.Feature.data5.maximum = 6;
 	IRDev.Feature.data5.value = 0;
 	IRDev.Feature.arg[0] = 1;
@@ -113,7 +114,7 @@ void IR_Init(void)
 	/* Output */
 	IRDev.Output.data1.minimum = 0;							//Start Flag
 	IRDev.Output.data1.maximum = 1;
-	IRDev.Output.data1.value = 0;
+	IRDev.Output.data1.value = 1;
 	IRDev.Output.data2.minimum = 0;							//Stop Flag
 	IRDev.Output.data2.maximum = 1;
 	IRDev.Output.data2.value = 0;
@@ -131,7 +132,12 @@ void IR_Init(void)
 	//IR Rx:PWM capture(PE3,PWM0_CH3)
 	SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC3MFP_Msk));
 	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC3MFP_PWM0_CH3;
-	
+	//LED
+	SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk);
+	SYS->GPA_MFPL |= SYS_GPA_MFPL_PA2MFP_GPIO;
+	GPIO_SetMode(PA,BIT2,GPIO_MODE_OUTPUT);
+	PA2 = 1;
+
 	/* Unlock protected registers */
 	SYS_UnlockReg();
 	
@@ -365,6 +371,8 @@ void ReceiveIR()
 		// compute IR data
 		if(IR_RxComplete_Flag == 1)	//32 bit data
 		{
+			PA2 = 0;
+			IRDev.Input.data1.value = 1;
 			//Update Data
 			UpdateIRDATA();
 			IR_RxExecute_Flag = 0;
@@ -383,16 +391,19 @@ void ReceiveIR()
 		/* --One bit time out-- */
 		if((IR_RxExecute_Flag==1) && (IR_capture_count>63) ) //Time out:120ms	
 		{
+			PA2 = 0;
+			IRDev.Input.data1.value = 1;
 			//Update learned Data
 			IR_RxReveice_Bit = IR_capture_count;		//update received data bits
 			RxLearnData();
 			IR_LearnedDataLeng[IR_LearnedByte/2] = IR_capture_count;
 			IR_LearnedByte+=2;
+			IRDev.Feature.data2.value = IR_LearnedByte/2;
+			IRDev.Feature.data3.value = 1;
 			IR_RxExecute_Flag = 0;
 			IR_RxComplete_Flag = 0;
 			IR_LearnedFlag=1;
 			IR_LearnMode = 0;
-			IRDev.Feature.data2.value = IR_LearnedByte/2;
 		}
 		else if((IR_RxExecute_Flag==1) && (getTickCount()-IR_init_counter)>120 ) //Time out:120ms	
 		{
@@ -401,11 +412,12 @@ void ReceiveIR()
 			RxLearnData();
 			IR_LearnedDataLeng[IR_LearnedByte/2] = IR_capture_count;
 			IR_LearnedByte+=2;
+			IRDev.Feature.data2.value = IR_LearnedByte/2;
+			IRDev.Feature.data3.value = 1;
 			IR_RxExecute_Flag = 0;
 			IR_RxComplete_Flag = 0;
 			IR_LearnedFlag=1;
 			IR_LearnMode = 0;
-			IRDev.Feature.data2.value = IR_LearnedByte/2;
 		}
 		
 		/* --Time out-- */
@@ -417,4 +429,39 @@ void ReceiveIR()
 //			IR_RxComplete_Flag = 0;
 //		}
 	}
+}
+
+void IR_Control(void)
+{
+    /* Send IR */
+    if(IRDev.Output.data1.value == 1)																			//Period, Duty
+    {
+        IRTx_StartFlag = 1;
+        IR_LearnedFlag = IRDev.Feature.data3.value;
+        IR_Tx_LearnedDataByten = IRDev.Feature.data5.value-1;
+        IRDev.Output.data1.value=0;
+    }
+    SendIR();
+
+    /* Reflash Input */
+    if(IRDev.Input.data1.value == 1)
+    {
+        TMR1TimerCounter++;
+    }
+    if(TMR1TimerCounter > 2)
+    {
+		PA2 = 1;
+        IRDev.Input.data1.value = 0;
+        TMR1TimerCounter=0;
+    }
+}
+
+void IR_Check(void)
+{
+    if(IRDev.Output.data2.value == 1)																			
+    {
+        IR_LearnMode = 1;
+        IRDev.Output.data2.value=0;
+    }
+    ReceiveIR();   
 }

@@ -13,12 +13,17 @@
  *                                                             *
  *=============================================================*
  */
-#ifndef PWM0P0_IRQ_H_
-#define PWM0P0_IRQ_H_
+#ifndef LR_H_
+#define LR_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
-#include "temperature.h"
+#include "tid.h"
 
-#endif /* PWM0P0_IRQ_H_ */
+void Lr_Init(void);
+void GetLr(void);
+
+extern uint16_t  LrData;
+
+#endif /* BATTERY_H_ */

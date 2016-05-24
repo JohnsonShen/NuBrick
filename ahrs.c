@@ -13,7 +13,9 @@
  * HSHSIEH@nuvoton.com                                         *
  *=============================================================*
  */ 
- 
+
+#include "i2cdev.h"
+#include "sensors.h"
 #include "ahrs.h"
 
 float Gyro[3];
@@ -23,6 +25,11 @@ int32_t VibrationOverTimeCounter;
 
 void AhrsParaInit()
 {
+	//LED
+	SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk);
+	SYS->GPA_MFPL |= SYS_GPA_MFPL_PA2MFP_GPIO;
+	GPIO_SetMode(PA,BIT2,GPIO_MODE_OUTPUT);
+	PA2 = 1;
 
 	AHRSDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
 	AHRSDev.DevDesc.RptDesc_leng = 34;						//Report descriptor
@@ -41,7 +48,7 @@ void AhrsParaInit()
 	AHRSDev.Feature.data1.value = 100;
 	AHRSDev.Feature.data2.minimum = 0;						//Vibration
 	AHRSDev.Feature.data2.maximum = 10;
-	AHRSDev.Feature.data2.value = 3;
+	AHRSDev.Feature.data2.value = 1;
 	AHRSDev.Feature.arg[0] = 1;
 	AHRSDev.Feature.arg[1] = 2;
 	AHRSDev.Feature.datalen[0] = 2;
@@ -78,9 +85,9 @@ void AhrsRead(uint8_t GYRO_Sentivity, uint16_t VibrationAlermTime, uint8_t Vibra
 	//nvtGetVelocity(Ve);		
 	//nvtGetMove(Move);
 	//nvtGetCalibratedACC(Ve);
-	//nvtGetAccZWithoutGravity(&Ve[0], &Ve[1]);
 	// Get x,y,z Angeler velocity
-	nvtGetCalibratedGYRO(Gyro);
+	//nvtGetCalibratedGYRO(Gyro);
+	nvtGetAccZWithoutGravity(&Gyro[0], &Gyro[1]);
 	/* Update TID value */
 	GyroValue = 0;
 	for(i=0;i<3;i++)
@@ -88,16 +95,19 @@ void AhrsRead(uint8_t GYRO_Sentivity, uint16_t VibrationAlermTime, uint8_t Vibra
 		if(GyroValue<Gyro[i])
 			GyroValue=Gyro[i];
 	}
+	GyroValue = GyroValue*30;
 	AHRSDev.Input.data1.value = GyroValue;
 	//printf("Vibration=%f.\n", GyroValue);
 	/* Alerm if angular is bigger than stander */
 	if (GyroValue > (GYRO_PRESCALE*GYRO_Sentivity))
 	{
+		PA2 = 0;
 		AHRSDev.Input.data2.value = 1;
 		//VibrationOverTimeCounter = getTickCount()+ VibrationAlermTime*1000;
 	}
 	else
 	{
+		PA2 = 1;
 		AHRSDev.Input.data2.value = 0;
 	}
 	
@@ -110,4 +120,19 @@ void AhrsRead(uint8_t GYRO_Sentivity, uint16_t VibrationAlermTime, uint8_t Vibra
 //			AHRSDev.Input.data2.value = 0;
 //	}
 	
+}
+
+void AHRS_Init(void)
+{    
+    I2C_Init();
+    nvtAHRSInit();
+    SensorsInit();
+    AhrsParaInit();
+}
+
+void AHRS_Control(void)
+{
+    SensorsRead(SENSOR_ACC|SENSOR_GYRO,1);
+    nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
+    AhrsRead(AHRSDev.Feature.data2.value, AHRSDev.Feature.data3.value, AHRSDev.Output.data1.value);				//(Vibration Level, alerm time, clear flag)
 }

@@ -248,6 +248,18 @@ void I2C_MS_Slave_Init()
 	I2C_SetSlaveAddr(I2C_MS_PORT, 0, 0x1b, 0);   /* Slave Address : 27,IR */
 	else if(devNum == 8)
 	I2C_SetSlaveAddr(I2C_MS_PORT, 0, 0x1c, 0);   /* Slave Address : 28,KEY */
+	else if(devNum == 9)
+	I2C_SetSlaveAddr(I2C_MS_PORT, 0, 0x1d, 0);   /* Slave Address : 29, Reserved device 9 */
+	else if(devNum == 10)
+	I2C_SetSlaveAddr(I2C_MS_PORT, 0, 0x1e, 0);   /* Slave Address : 30, Reserved device 10 */
+	else if(devNum == 11)
+	I2C_SetSlaveAddr(I2C_MS_PORT, 0, 0x1f, 0);   /* Slave Address : 31, Reserved device 11 */
+	else if(devNum == 12)
+	I2C_SetSlaveAddr(I2C_MS_PORT, 0, 0x20, 0);   /* Slave Address : 32, Reserved device 12 */
+	else if(devNum == 13)
+	I2C_SetSlaveAddr(I2C_MS_PORT, 0, 0x21, 0);   /* Slave Address : 33, Reserved device 13 */
+	else if(devNum == 14)
+	I2C_SetSlaveAddr(I2C_MS_PORT, 0, 0x22, 0);   /* Slave Address : 34, Reserved device 14 */
 
 	I2C_SetSlaveAddr(I2C_MS_PORT, 1, 0x35, 0);   /* Slave Address : 0x35 */
 	I2C_SetSlaveAddr(I2C_MS_PORT, 2, 0x55, 0);   /* Slave Address : 0x55 */
@@ -286,6 +298,8 @@ void I2C_MS_Master_Init()
 	/* Set I2C PA multi-function pins */
 	SYS->GPE_MFPH &= ~(SYS_GPE_MFPH_PE12MFP_Msk | SYS_GPE_MFPH_PE13MFP_Msk);
 	SYS->GPE_MFPH |= ( SYS_GPE_MFPH_PE12MFP_I2C0_SCL | SYS_GPE_MFPH_PE13MFP_I2C0_SDA);
+	//GPIO_SetMode(PE, BIT12, GPIO_MODE_QUASI);
+	//GPIO_SetMode(PE, BIT13, GPIO_MODE_QUASI);
 	//SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk | SYS_GPA_MFPL_PA3MFP_Msk);
 	//SYS->GPA_MFPL |= (SYS_GPA_MFPL_PA2MFP_I2C0_SDA | SYS_GPA_MFPL_PA3MFP_I2C0_SCL);
 	#else

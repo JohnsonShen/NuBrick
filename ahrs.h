@@ -28,7 +28,7 @@
 #include "tid.h"
 
 #define ACC_PRESCALE		2
-#define GYRO_PRESCALE		10
+#define GYRO_PRESCALE		50
 
 void AhrsParaInit(void);
 void AhrsRead(uint8_t, uint16_t, uint8_t);
@@ -36,5 +36,8 @@ void AhrsRead(uint8_t, uint16_t, uint8_t);
 extern float Gyro[3];
 extern int8_t VibrationOverFlag;
 extern float GyroValue;
+
+void AHRS_Init(void);
+void AHRS_Control(void);
 
 #endif /* AHRS_H_ */

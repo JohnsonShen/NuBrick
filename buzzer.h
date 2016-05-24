@@ -29,6 +29,7 @@ void Buzzer_Alerm(uint16_t, uint16_t, uint8_t);
 void Buzzer_Stop(void);
 void Buzzer_Song_Start(void);
 void Buzzer_Song_Check(void);
+void Buzzer_Control(void);
 
 extern uint8_t BuzzerExecuteFlag;
 

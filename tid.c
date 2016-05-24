@@ -135,6 +135,13 @@ TID_Device AHRSDev;
  *			Input:		Key state,				 			1 bits
  *
  */
+TID_Device ResDev9;
+TID_Device ResDev10;
+TID_Device ResDev11;
+TID_Device ResDev12;
+TID_Device ResDev13;
+TID_Device ResDev14;
+
 uint16_t TID_loadFromFlash;							//Load from Flash flag
 uint8_t TID_HandSingDataFlag;						//Handle TID single Data is finished
 uint8_t TID_RpDescType;									//Handle TID single Data is finished
@@ -146,6 +153,14 @@ uint16_t* TID_RpInReg;									//Handle TID single Data is finished
 uint16_t* TID_RpOutReg;									//Handle TID single Data is finished
 
 
+void SetDeviceFunction(TID_Device *tid, APFN_FUNC_T *apfn_func)
+{
+    tid->func.pfnSetup = (*apfn_func)[0];
+    tid->func.pfnPeriod = (*apfn_func)[1];
+    tid->func.pfnPulling = (*apfn_func)[2];
+    tid->func.pfnReport = (*apfn_func)[3];  
+}
+
 // *********************************************************************************
 //							TID get/store data from flash
 // *********************************************************************************
@@ -156,6 +171,7 @@ void GetFlashTID(TID_FEATURE* devData, int8_t devNum)
 	
 	TID_loadFromFlash = 0;
 	TIDBase=TID_BASE;
+	SYS_UnlockReg();
 	Valid = dw2i16(DATA_FLASH_Read(TIDBase++));
 	if(Valid == (devNum + 256))
 	{
@@ -171,11 +187,12 @@ void GetFlashTID(TID_FEATURE* devData, int8_t devNum)
 		devData->data9.value = dw2i16(DATA_FLASH_Read(TIDBase++));
 		devData->data10.value = dw2i16(DATA_FLASH_Read(TIDBase++));
 	}
+	SYS_LockReg();
 }
 
 void UpdateFlashTID(TID_FEATURE devData, int8_t devNum, bool reset)
 {
-	uint8_t TIDBase, i=0;
+	uint32_t TIDBase, i=0;
 	int32_t TID_FIELD[TID_SIZE];
 	
 	TIDBase=TID_BASE;
@@ -197,10 +214,25 @@ void UpdateFlashTID(TID_FEATURE devData, int8_t devNum, bool reset)
 	}
 	else
 	{
-		for(i=0;i<TID_SIZE;i++) {
-			DATA_FLASH_Write(TIDBase++,TID_FIELD[i]);
-			//printf("PID_FIELD[%d]:%f\n", i, PID_FIELD[i]);
+		SYS_UnlockReg();
+		//(uint32_t u32addr,uint32_t u32data)
+		/* Read FMC */
+		for(i=0;i < PAGE_SIZE;i++)
+		data_buff[i] = FMC_Read(DATA_Flash_Start_ADD+i*4+ TIDBase/PAGE_SIZE*2048);
+		/* Erase FMC */
+		for(i=0;i<TID_SIZE;i++)
+		{
+			FMC_Erase(DATA_Flash_Start_ADD+i*4+TIDBase/PAGE_SIZE*2048);
+			data_buff[(TIDBase+i)%PAGE_SIZE]=TID_FIELD[i];
 		}
+		/* Write FMC */
+		for(i=0; i<PAGE_SIZE; i++)
+		FMC_Write(DATA_Flash_Start_ADD+i*4+ TIDBase/PAGE_SIZE*2048, data_buff[i]);
+		//for(i=0;i<TID_SIZE;i++) {
+			//DATA_FLASH_Write(TIDBase++,TID_FIELD[i]);
+			//printf("PID_FIELD[%d]:%f\n", i, PID_FIELD[i]);
+		//}
+		SYS_LockReg();
 	}
 }
 
@@ -369,65 +401,11 @@ void HandDevDesc()
 	{
 		for(i=0;i<=datLen;i++)
 		{
-			switch (I2CMstDev)
-			{
-				case 1:
-				{
-					*(&BuzDev.DevDesc.DevDesc_leng+i) = I2CMS_MstRxData[i*2];
-					*(&BuzDev.DevDesc.DevDesc_leng+i) |= (I2CMS_MstRxData[i*2+1]<<8);
-					//printf("BuzData[%d] = %d\n", i, *(&BuzDev.DevDesc.RptDesc_leng+i));
-					break;
-				}
-				case 2:
-				{
-					*(&LedDev.DevDesc.DevDesc_leng+i) = I2CMS_MstRxData[i*2];
-					*(&LedDev.DevDesc.DevDesc_leng+i) |= (I2CMS_MstRxData[i*2+1]<<8);
-					//printf("LEDData[%d] = %d\n", i, *(&LedDev.DevDesc.RptDesc_leng+i));
-					break;
-				}
-				case 3:
-				{
-					*(&AHRSDev.DevDesc.DevDesc_leng+i) = I2CMS_MstRxData[i*2];
-					*(&AHRSDev.DevDesc.DevDesc_leng+i) |= (I2CMS_MstRxData[i*2+1]<<8);
-					//printf("AHRSData[%d] = %d\n", i, *(&AHRSDev.DevDesc.RptDesc_leng+i));
-					break;
-				}
-				case 4:
-				{
-					*(&SonDev.DevDesc.DevDesc_leng+i) = I2CMS_MstRxData[i*2];
-					*(&SonDev.DevDesc.DevDesc_leng+i) |= (I2CMS_MstRxData[i*2+1]<<8);
-					//printf("AHRSData[%d] = %d\n", i, *(&AHRSDev.DevDesc.RptDesc_leng+i));
-					break;
-				}
-				case 5:
-				{
-					*(&TempDev.DevDesc.DevDesc_leng+i) = I2CMS_MstRxData[i*2];
-					*(&TempDev.DevDesc.DevDesc_leng+i) |= (I2CMS_MstRxData[i*2+1]<<8);
-					//printf("AHRSData[%d] = %d\n", i, *(&AHRSDev.DevDesc.RptDesc_leng+i));
-					break;
-				}
-				case 6:
-				{
-					*(&GasDev.DevDesc.DevDesc_leng+i) = I2CMS_MstRxData[i*2];
-					*(&GasDev.DevDesc.DevDesc_leng+i) |= (I2CMS_MstRxData[i*2+1]<<8);
-					//printf("AHRSData[%d] = %d\n", i, *(&AHRSDev.DevDesc.RptDesc_leng+i));
-					break;
-				}
-				case 7:
-				{
-					*(&IRDev.DevDesc.DevDesc_leng+i) = I2CMS_MstRxData[i*2];
-					*(&IRDev.DevDesc.DevDesc_leng+i) |= (I2CMS_MstRxData[i*2+1]<<8);
-					//printf("AHRSData[%d] = %d\n", i, *(&AHRSDev.DevDesc.RptDesc_leng+i));
-					break;
-				}
-				case 8:
-				{
-					*(&KeyDev.DevDesc.DevDesc_leng+i) = I2CMS_MstRxData[i*2];
-					*(&KeyDev.DevDesc.DevDesc_leng+i) |= (I2CMS_MstRxData[i*2+1]<<8);
-					//printf("AHRSData[%d] = %d\n", i, *(&AHRSDev.DevDesc.RptDesc_leng+i));
-					break;
-				}
-			}
+            uint16_t u16Data;
+            
+            u16Data = I2CMS_MstRxData[i*2] | (I2CMS_MstRxData[i*2+1]<<8);
+            (&(pTidList[I2CMstDev]->DevDesc.DevDesc_leng))[i] = u16Data;
+
 		}
 	}
 	for(i=0;i<64;i++)
@@ -592,49 +570,7 @@ void HandRptDesc_sub(TID_Device* devPointer)
 
 void HandRptDesc()
 {
-	switch (I2CMstDev)
-	{
-	case 1:
-		{
-			HandRptDesc_sub(&BuzDev);
-			break;
-		}
-	case 2:
-		{
-			HandRptDesc_sub(&LedDev);
-			break;
-		}
-	case 3:
-		{
-			HandRptDesc_sub(&AHRSDev);
-			break;
-		}
-	case 4:
-		{
-			HandRptDesc_sub(&SonDev);
-			break;
-		}
-	case 5:
-		{
-			HandRptDesc_sub(&TempDev);
-			break;
-		}
-	case 6:
-		{
-			HandRptDesc_sub(&GasDev);
-			break;
-		}
-	case 7:
-		{
-			HandRptDesc_sub(&IRDev);
-			break;
-		}
-	case 8:
-		{
-			HandRptDesc_sub(&KeyDev);
-			break;
-		}
-	}
+    HandRptDesc_sub(pTidList[I2CMstDev]);
 }
 
 // =========================================================================
@@ -685,49 +621,7 @@ void HandInRpt_sub(TID_Device* devPointer)
 
 void HandInRpt()
 {
-	switch (I2CMstDev)
-	{
-		case 1:
-		{
-			HandInRpt_sub(&BuzDev);
-			break;
-		}
-		case 2:
-		{
-			HandInRpt_sub(&LedDev);
-			break;
-		}
-		case 3:
-		{
-			HandInRpt_sub(&AHRSDev);
-			break;
-		}
-		case 4:
-		{
-			HandInRpt_sub(&SonDev);
-			break;
-		}
-		case 5:
-		{
-			HandInRpt_sub(&TempDev);
-			break;
-		}
-		case 6:
-		{
-			HandInRpt_sub(&GasDev);
-			break;
-		}
-		case 7:
-		{
-			HandInRpt_sub(&IRDev);
-			break;
-		}
-		case 8:
-		{
-			HandInRpt_sub(&KeyDev);
-			break;
-		}
-	}
+    HandInRpt_sub(pTidList[I2CMstDev]);
 }
 
 // =========================================================================
@@ -803,49 +697,7 @@ void HandGetFeat_sub(TID_Device* devPointer)
 
 void HandGetFeat()
 {
-	switch (I2CMstDev)
-	{
-		case 1:
-		{
-			HandGetFeat_sub(&BuzDev);
-			break;
-		}
-		case 2:
-		{
-			HandGetFeat_sub(&LedDev);
-			break;
-		}
-		case 3:
-		{
-			HandGetFeat_sub(&AHRSDev);
-			break;
-		}
-		case 4:
-		{
-			HandGetFeat_sub(&SonDev);
-			break;
-		}
-		case 5:
-		{
-			HandGetFeat_sub(&TempDev);
-			break;
-		}
-		case 6:
-		{
-			HandGetFeat_sub(&GasDev);
-			break;
-		}
-		case 7:
-		{
-			HandGetFeat_sub(&IRDev);
-			break;
-		}
-		case 8:
-		{
-			HandGetFeat_sub(&KeyDev);
-			break;
-		}
-	}
+    HandGetFeat_sub(pTidList[I2CMstDev]);
 }
 
 // =========================================================================
@@ -961,46 +813,11 @@ void HandSetFeat_sub(TID_Device* devPointer)
 
 void HandSetFeat()
 {
-	if(devNum == 1)
-	{
-		HandSetFeat_sub(&BuzDev);
-		UpdateFlashTID(BuzDev.Feature, 1, false);
-	}
-	else if(devNum == 2)
-	{
-		HandSetFeat_sub(&LedDev);
-		UpdateFlashTID(LedDev.Feature, 2, false);
-	}
-	else if(devNum == 3)
-	{
-		HandSetFeat_sub(&AHRSDev);
-		UpdateFlashTID(AHRSDev.Feature, 3, false);
-	}
-	else if(devNum == 4)
-	{
-		HandSetFeat_sub(&SonDev);
-		UpdateFlashTID(SonDev.Feature, 4, false);
-	}
-	else if(devNum == 5)
-	{
-		HandSetFeat_sub(&TempDev);
-		UpdateFlashTID(TempDev.Feature, 5, false);
-	}
-	else if(devNum == 6)
-	{
-		HandSetFeat_sub(&GasDev);
-		UpdateFlashTID(GasDev.Feature, 6, false);
-	}
-	else if(devNum == 7)
-	{
-		HandSetFeat_sub(&IRDev);
-		UpdateFlashTID(IRDev.Feature, 7, false);
-	}
-	else if(devNum == 8)
-	{
-		HandSetFeat_sub(&KeyDev);
-		UpdateFlashTID(KeyDev.Feature, 8, false);
-	}
+	HandSetFeat_sub(pTidList[devNum]);
+    
+    if (devNum != 7)
+        // update Flash except for IR
+        UpdateFlashTID(pTidList[devNum]->Feature, devNum, false);
 }
 
 // =========================================================================
@@ -1051,38 +868,7 @@ void HandOutRpt_sub(TID_Device* devPointer)
 
 void HandOutRpt()
 {
-	if(devNum == 1)
-	{
-		HandOutRpt_sub(&BuzDev);
-	}
-	else if(devNum == 2)
-	{
-		HandOutRpt_sub(&LedDev);
-	}
-	else if(devNum == 3)
-	{
-		HandOutRpt_sub(&AHRSDev);
-	}
-	else if(devNum == 4)
-	{
-		HandOutRpt_sub(&SonDev);
-	}
-	else if(devNum == 5)
-	{
-		HandOutRpt_sub(&TempDev);
-	}
-	else if(devNum == 6)
-	{
-		HandOutRpt_sub(&GasDev);
-	}
-	else if(devNum == 7)
-	{
-		HandOutRpt_sub(&IRDev);
-	}
-	else if(devNum == 8)
-	{
-		HandOutRpt_sub(&KeyDev);
-	}
+    HandOutRpt_sub(pTidList[devNum]);
 }
 
 

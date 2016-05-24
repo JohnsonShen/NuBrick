@@ -21,7 +21,7 @@
 #include "M451Series.h"
 #include "timerctrl.h"
 
-void Timer1Init(void);
+void Timer1Init(uint16_t freq);
 
 extern volatile uint32_t TMR1INTCount;
 extern volatile uint32_t TMR1TimerCounter;

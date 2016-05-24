@@ -44,6 +44,11 @@ void Gas_Init()
 	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC5MFP_GPIO;
 	GPIO_SetMode(PC,BIT5,GPIO_MODE_OUTPUT);
 	PC5=1;
+	//LED
+	SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk);
+	SYS->GPA_MFPL |= SYS_GPA_MFPL_PA2MFP_GPIO;
+	GPIO_SetMode(PA,BIT2,GPIO_MODE_OUTPUT);
+	PA2 = 1;
 	
 	/* Set the ADC internal sampling time, input mode as single-end and enable the A/D converter */
 	EADC_Open(EADC, EADC_CTL_DIFFEN_SINGLE_END);
@@ -117,11 +122,13 @@ void GetGas()
 	GasDev.Input.data1.value = GasData;
 	if(GasDev.Input.data1.value < GasDev.Feature.data2.value)
 	{
+		PA2 = 0;
 		GasDev.Input.data2.value = 1;
 		//GasOverTimeCounter = getTickCount()+ GasDev.Feature.data3.value*1000;
 	}
 	else
 	{
+		PA2 = 1;
 		GasDev.Input.data2.value = 0;
 	}
 	/* reset alerm flag after 10s */

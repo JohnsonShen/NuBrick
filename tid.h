@@ -23,18 +23,27 @@
 #include "flash.h"
 #include "I2C_ms.h"
 
+#define MAX_TID_DEV         (15)
+#define EMBEDDED_TID_DEV    (9)
+
 /****************************************************************/
 /*                    Sensor Type definitions                   */
 /****************************************************************/
-#define BATTERYDEV	1
-#define BUZZERDEV	1
-#define LEDDEV 		2
-#define AHRSDEV		3
-#define SONARDEV	4
-#define TEMPDEV		5
-#define GASDEV		6
-#define IRDEV		7
-#define KEYDEV		8
+#define BATTERYDEV	0
+#define BUZZERDEV		1
+#define LEDDEV 			2
+#define AHRSDEV			3
+#define SONARDEV		4
+#define TEMPDEV			5
+#define GASDEV			6
+#define IRDEV			7
+#define KEYDEV			8
+#define RESDEV9			9
+#define RESDEV10		10
+#define RESDEV11		11
+#define RESDEV12		12
+#define RESDEV13		13
+#define RESDEV14		14
 
 #define TID_CHANGE_STATE_FLAG 1
 #define TID_FEATURE_FLAG 1
@@ -92,9 +101,13 @@ typedef struct
 	uint8_t dFIVE;			//Temperature
 	uint8_t dSIX;			//Gas
 	uint8_t dSEV;			//IR
-	uint8_t dEIG;
-	uint8_t dNINE;
-	uint8_t dTEN;
+	uint8_t dEIG;			//KEY
+	uint8_t dNINE;			//Reserved device 9
+	uint8_t dX;			//Reserved device 10
+	uint8_t dXI;			//Reserved device 11
+	uint8_t dXII;			//Reserved device 12
+	uint8_t dXIII;			//Reserved device 13
+	uint8_t dXIV;			//Reserved device 14
 } DEVICE_TO_DEVICE;
 
 //==============================================================
@@ -146,6 +159,17 @@ typedef struct
 	uint8_t dataNum;
 } TID_OUTPUT;
 
+typedef void (*PFN_FUNC_T)(void);
+typedef PFN_FUNC_T APFN_FUNC_T[4];
+
+typedef struct
+{
+    PFN_FUNC_T  pfnSetup;           // function to configure GPIO and initial sensor
+    PFN_FUNC_T  pfnPeriod;          // function to process sensor data and flow control once per 0.1 seconds
+    PFN_FUNC_T  pfnPulling;         // function to process sensor data and flow control frequently
+    PFN_FUNC_T  pfnReport;          // function to report data
+} DEVICE_FUNC_T;
+
 // ************************************************************
 //										TID Device
 // ************************************************************
@@ -156,7 +180,13 @@ typedef struct
 	TID_INPUT Input;
 	TID_OUTPUT Output;
 	DEVICE_TO_DEVICE dTod;
+    DEVICE_FUNC_T   func;
 } TID_Device;
+
+typedef TID_Device *PTID_Device_T;
+
+extern PTID_Device_T pTidList[MAX_TID_DEV];
+extern APFN_FUNC_T pfnDevFunc[MAX_TID_DEV];
 
 extern TID_Device BatDev;
 extern TID_Device BuzDev;
@@ -167,8 +197,16 @@ extern TID_Device TempDev;
 extern TID_Device GasDev;
 extern TID_Device IRDev;
 extern TID_Device KeyDev;
+extern TID_Device ResDev9;
+extern TID_Device ResDev10;
+extern TID_Device ResDev11;
+extern TID_Device ResDev12;
+extern TID_Device ResDev13;
+extern TID_Device ResDev14;
 
 extern uint16_t TID_loadFromFlash;
+
+void SetDeviceFunction(TID_Device *tid, APFN_FUNC_T *apfn_func);
 
 //master
 void HandDevDesc(void);

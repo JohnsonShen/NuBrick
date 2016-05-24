@@ -13,23 +13,29 @@
  * HCHEISH@nuvoton.com                                         *
  *=============================================================*
  */
-#ifndef TEMPERATURE_H_
-#define TEMPERATURE_H_
+#ifndef I2C_HTU21D_H_
+#define I2C_HTU21D_H_
+
+#define I2C_TEMP_WRITE 1
+#define I2C_TEMP_READ 0
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "M451Series.h"
+#include "def.h"
+#include "Config.h"
 #include "timerctrl.h"
-#include "tid.h"
+#include "nvti2c.h"
+#include "devCheck.h"
 
-void Init_DHT11_PWM0(void);
-void Get_DHT11(void);
-void DHT11GetDATA(void);
+void I2C_Temp_Init(void);
+void I2CTemp_readBytes(I2C_T*, uint8_t, uint8_t, uint8_t, uint8_t*);
+void I2CTemp_writeBytes(I2C_T*, uint8_t, uint8_t, uint8_t, uint8_t*);
+void I2C_TEMP_Read_Write(uint8_t, uint8_t, uint32_t, uint8_t);
 
-extern volatile uint8_t DHT11_temperature;
-extern volatile uint8_t DHT11_Humidity;
-extern volatile uint16_t DHT11_DATA[42];
-extern uint16_t capture_count;
-extern uint8_t DHT11ExecuteFlag;
 
-#endif /* TEMPERATURE_H_ */
+extern uint8_t	I2CTempTRxEndFlag;
+extern uint8_t  I2CTemp_TxData[4];								//Store Received data in Master
+extern uint8_t  I2CTemp_RxData[4];								//Store Received data in Master
+
+#endif //I2C_HTU21D

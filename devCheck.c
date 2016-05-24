@@ -57,8 +57,26 @@ void ID_Init()
 
 void GetID()
 {
-	uint32_t adcData;
-	
+    static uint16_t u16Range[][2] = {
+        { 125,  310},
+        { 373,  558},
+        { 621,  806},
+        { 869, 1055},
+        {1118, 1303},
+        {1366, 1551},
+        {1616, 1799},
+        {1861, 2048},
+        {2111, 2296},
+        {2359, 2544},
+        {2607, 2792},
+        {2855, 3040},
+        {3103, 3289},
+        {3351, 3537},
+        {3600, 3785}
+    };      
+	uint16_t adcData;
+    uint32_t i;
+    
 	// Clear the ADC INT0 interrupt flag
 	EADC_CLR_INT_FLAG(EADC, 0x1);
 	// Clear the ADC INT0 interrupt flag
@@ -67,25 +85,19 @@ void GetID()
 	while(EADC_GET_INT_FLAG(EADC, 0x1) == 0);
 	//Wait ADC interrupt (g_u32AdcIntFlag will be set at IRQ_Handler function)
 	adcData = EADC_GET_CONV_DATA(EADC, 0);
+
 	//check module ID
-	if(adcData > 125 & adcData < 310)			//Master(0.1~0.25V)
-		devNum = 0;
-	else if (adcData > 373 & adcData < 558)		//Buzzer(0.3~0.45V)
-		devNum = 1;
-	else if (adcData > 621 & adcData < 806)		//LED(0.5~0.65V)
-		devNum = 2;
-	else if (adcData > 869 & adcData < 1055)	//AHRS(0.7~0.85V)
-		devNum = 3;
-	else if (adcData > 1118 & adcData < 1303)	//Sonar(0.9~1.05V)
-		devNum = 4;
-	else if (adcData > 1366 & adcData < 1551)	//Temperature(1.1~1.25V)
-		devNum = 5;
-	else if (adcData > 1616 & adcData < 1799)	//Gas(1.3~1.45V)
-		devNum = 6;
-	else if (adcData > 1861 & adcData < 2048)	//IR(1.5~1.65V)
-		devNum = 7;
-	else if (adcData > 2111 & adcData < 2296)	//KEY(1.7~1.85V)
-		devNum = 8;
-	else
-		devNum = 100;	
+    
+    for(i=0; i<(sizeof(u16Range)/sizeof(uint16_t)/2); i++)
+    {
+        if (adcData > u16Range[i][0] && adcData < u16Range[i][1])
+        {
+            devNum = i;
+            break;
+        }
+    }
+    
+    if (i >= (sizeof(u16Range)/sizeof(uint16_t)/2))
+        devNum = 100;
+    
 }

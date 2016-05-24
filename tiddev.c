@@ -178,22 +178,12 @@ void SlvDevInit(TID_Device* devPointer)
 
 void SlvDataInit()
 {
-	if(devNum == 1)
-	SlvDevInit(&BuzDev);
-	else if(devNum == 2)
-	SlvDevInit(&LedDev);
-	else if(devNum == 3)
-	SlvDevInit(&AHRSDev);
-	else if(devNum == 4)
-	SlvDevInit(&SonDev);
-	else if(devNum == 5)
-	SlvDevInit(&TempDev);
-	else if(devNum == 6)
-	SlvDevInit(&GasDev);
-	else if(devNum == 7)
-	SlvDevInit(&IRDev);
-	else if(devNum == 8)
-	SlvDevInit(&KeyDev);
+    if (devNum >= 1 && devNum < MAX_TID_DEV)
+    {
+        if (pTidList[devNum])
+            SlvDevInit(pTidList[devNum]);
+    }
+    
 }
 
 // **************************************************************
@@ -302,4 +292,16 @@ void SlvDataStore()
 	SlvDevDataStore(&IRDev);
 	else if(devNum == 8)
 	SlvDevDataStore(&KeyDev);
+	else if(devNum == 9)
+	SlvDevDataStore(&ResDev9);
+	else if(devNum == 10)
+	SlvDevDataStore(&ResDev10);
+	else if(devNum == 11)
+	SlvDevDataStore(&ResDev11);
+	else if(devNum == 12)
+	SlvDevDataStore(&ResDev12);
+	else if(devNum == 13)
+	SlvDevDataStore(&ResDev13);
+	else if(devNum == 14)
+	SlvDevDataStore(&ResDev14);
 }

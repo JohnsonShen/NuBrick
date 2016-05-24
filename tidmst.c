@@ -40,7 +40,7 @@ uint8_t TIDMstTRxCounter;
 void MstDataInit()
 {
 	TIDMstHandFlag = 0;
-	BuzDev.dTod.dTHR = 0;
+	BuzDev.dTod.dTHR = 1;
 	LedDev.dTod.dTHR = 1;
 	BuzDev.dTod.dFOUR = 0;
 	LedDev.dTod.dFOUR = 1;
@@ -52,6 +52,18 @@ void MstDataInit()
 	LedDev.dTod.dSEV = 1;
 	BuzDev.dTod.dEIG = 0;
 	LedDev.dTod.dEIG = 1;
+	BuzDev.dTod.dNINE = 0;
+	LedDev.dTod.dNINE = 1;
+	BuzDev.dTod.dX = 0;
+	LedDev.dTod.dX = 0;
+	BuzDev.dTod.dXI = 0;
+	LedDev.dTod.dXI = 0;
+	BuzDev.dTod.dXII = 0;
+	LedDev.dTod.dXII = 0;
+	BuzDev.dTod.dXIII = 0;
+	LedDev.dTod.dXIII = 0;
+	BuzDev.dTod.dXIV = 0;
+	LedDev.dTod.dXIV = 0;
 }
 // **************************************************************
 //					Master Store data to TID REG
@@ -224,6 +236,36 @@ void MstDataStore()
 			MstDataStore_sub(&KeyDev);
 			break;
 		}
+		case 9:
+		{
+			MstDataStore_sub(&ResDev9);
+			break;
+		}
+		case 10:
+		{
+			MstDataStore_sub(&ResDev10);
+			break;
+		}
+		case 11:
+		{
+			MstDataStore_sub(&ResDev11);
+			break;
+		}
+		case 12:
+		{
+			MstDataStore_sub(&ResDev12);
+			break;
+		}
+		case 13:
+		{
+			MstDataStore_sub(&ResDev13);
+			break;
+		}
+		case 14:
+		{
+			MstDataStore_sub(&ResDev14);
+			break;
+		}
 	}
 }
 
@@ -299,7 +341,20 @@ void TIDMstUpdateDevState()
 			TIDMstDevState[LEDDEV] |= 2;				//led operate: 					output(2)
 		}
 	}
-	else if((KeyDev.Input.data1.value & 1) && (TIDMstInitDevState & (1<<KEYDEV)))
+	else if((IRDev.Input.data1.value & 1) && (TIDMstInitDevState & (1<<IRDEV)))
+	{
+		if(BuzDev.dTod.dSEV==1)
+		{
+			BuzDev.Output.data1.value = 1;				//Song
+			TIDMstDevState[BUZZERDEV] |= 2;				//buzzer operate:				output(2)
+		}
+		if(LedDev.dTod.dSEV==1)
+		{
+			LedDev.Output.data1.value = 1;				//Period
+			TIDMstDevState[LEDDEV] |= 2;				//led operate: 					output(2)
+		}
+	}
+	else if((KeyDev.Input.data1.value > 0) && (TIDMstInitDevState & (1<<KEYDEV)))
 	{
 		if(BuzDev.dTod.dEIG==1)
 		{
@@ -312,28 +367,56 @@ void TIDMstUpdateDevState()
 			TIDMstDevState[LEDDEV] |= 2;				//led operate: 					output(2)
 		}
 	}
+	else if((ResDev9.Input.data2.value == 1) && (TIDMstInitDevState & (1<<RESDEV9)))
+	{
+		if(BuzDev.dTod.dNINE==1)
+		{
+			BuzDev.Output.data1.value = 1;				//Song
+			TIDMstDevState[BUZZERDEV] |= 2;				//buzzer operate:				output(2)
+		}
+		if(LedDev.dTod.dNINE==1)
+		{
+			LedDev.Output.data1.value = 1;				//Period
+			TIDMstDevState[LEDDEV] |= 2;				//led operate: 					output(2)
+		}
+	}
+	if (TIDMstInitDevState & (1<<RESDEV9))	PA2 = 0;
+	else PA2 = 1;
+	
 	if((TIDMstDevState[BUZZERDEV] & 2)==0 && (reportAPFlag == 0))				//I2C output part & AP received data that are done
 	{
 		BuzDev.Output.data1.value = 0;				//Song
 	}
+	
 	if((TIDMstDevState[LEDDEV] & 2)==0 && (reportAPFlag == 0))					//I2C output part & AP received data that are done
 	{
 		LedDev.Output.data1.value = 0;		//Period
 	}
+	
+	if((TIDMstDevState[IRDEV] & 2)==0 && (reportAPFlag == 0))					//I2C output part & AP received data that are done
+	{
+		IRDev.Output.data1.value = 0;		//send flag
+	}
+	if((TIDMstDevState[IRDEV] & 2)==0 && (reportAPFlag == 0))					//I2C output part & AP received data that are done
+	{
+		IRDev.Output.data2.value = 0;		//send flag
+	}
+	
+	TIDMstDevState[BUZZERDEV] |= 1;				//buzzer operate:		read input(1)
+	TIDMstDevState[LEDDEV] |= 1;				//led operate: 			read input(1)	
+	TIDMstDevState[AHRSDEV] |= 1;				//AHRS operate: 		read input(1)
+	TIDMstDevState[SONARDEV] |= 1;				//sonar operate: 		read input(1)
+	TIDMstDevState[TEMPDEV] |= 1;				//temperature operate:	read input(1)
+	TIDMstDevState[GASDEV] |= 1;				//gas operate:			read input(1)
+	TIDMstDevState[IRDEV] |= 1;					//IR operate:			read input(1)
+	TIDMstDevState[KEYDEV] |= 1;				//gas operate:			read input(1)
+	TIDMstDevState[RESDEV9] |= 1;				//gas operate:			read input(1)
+	TIDMstDevState[RESDEV10] |= 1;				//gas operate:			read input(1)
+	TIDMstDevState[RESDEV11] |= 1;				//gas operate:			read input(1)
+	TIDMstDevState[RESDEV12] |= 1;				//gas operate:			read input(1)
+	TIDMstDevState[RESDEV13] |= 1;				//gas operate:			read input(1)
+	TIDMstDevState[RESDEV14] |= 1;				//gas operate:			read input(1)
 
-	TIDMstDevState[BUZZERDEV] |= 1;				//buzzer operate:				input(1)
-	TIDMstDevState[LEDDEV] |= 1;				//led operate: 					input(1)	
-	TIDMstDevState[AHRSDEV] |= 1;					//AHRS operate: 				input(1)
-	TIDMstDevState[SONARDEV] |= 1;					//sonar operate: 				input(1)
-	TIDMstDevState[TEMPDEV] |= 1;					//temperature operate:			input(1)
-	TIDMstDevState[GASDEV] |= 1;					//gas operate:	input(1)
-	TIDMstDevState[IRDEV] |= 1;					//temperature operate:			input(1)
-	TIDMstDevState[KEYDEV] |= 1;					//gas operate:	input(1)
-	//===============================
-	// ******NOTE*******************
-	//		Need to be modify
-	// *****************************
-	//===============================
 }
 
 // *************************************************************
@@ -357,6 +440,7 @@ void getDev_DevDes(uint8_t devNum, uint8_t DevReg)
 		else
 		{
 			HandDevDesc();
+			TIDMstDevState[devNum] |= 4;				//device operate:				get feature(4)
 			if(TIDMstInitDevState & (1<<devNum))
 				TIDMstStage+=2;
 			else 
@@ -385,7 +469,6 @@ void getDev_RepDes(uint8_t devNum, uint8_t DevReg)
 		else
 		{
 			HandRptDesc();
-			TIDMstDevState[devNum] |= 4;				//device operate:				get feature(4)
 			TIDMstInitDevState |= (1<<devNum);
 			TIDMstStage++;
 		}
@@ -465,33 +548,93 @@ void TIDMst_GetDev()
 		}
 		case 11:																		//Gas Report Descriptor
 		{
-			getDev_RepDes(GASDEV, 0x1a);											//26:GAS
+			getDev_RepDes(GASDEV, 0x1a);						//26:GAS
 			break;
 		}
-		case 12:																		//IR Device Descriptor
+		case 12:												//IR Device Descriptor
 		{
-			getDev_DevDes(IRDEV, 0x1b);											//27:IR
+			getDev_DevDes(IRDEV, 0x1b);							//27:IR
 			break;
 		}
-		case 13:																		//IR Report Descriptor
+		case 13:												//IR Report Descriptor
 		{
-			getDev_RepDes(IRDEV, 0x1b);											//27:IR
+			getDev_RepDes(IRDEV, 0x1b);							//27:IR
 			break;
 		}
-		case 14:																		//KEY Device Descriptor
+		case 14:												//KEY Device Descriptor
+		{
+			getDev_DevDes(KEYDEV, 0x1c);						//28:KEY
+			break;
+		}
+		case 15:												//KEY Report Descriptor
+		{
+			getDev_RepDes(KEYDEV, 0x1c);						//28:KEY
+			break;
+		}
+		case 16:												//RESERVE Device 9 Descriptor
+		{
+			getDev_DevDes(RESDEV9, 0x1d);						//29:RESERVE Device 9
+			break;
+		}
+		case 17:												//RESERVE Device 9 Report Descriptor
+		{
+			getDev_RepDes(RESDEV9, 0x1d);						//29:RESERVE Device 9
+			break;
+		}
+		case 18:												//RESERVE Device 10 Descriptor
+		{
+			getDev_DevDes(RESDEV10, 0x1e);						//30:RESERVE Device 10
+			break;
+		}
+		case 19:												//RESERVE Device 10 Report Descriptor
+		{
+			getDev_RepDes(RESDEV10, 0x1e);						//30:RESERVE Device 10
+			break;
+		}
+		case 20:												//RESERVE Device 11 Descriptor
+		{
+			getDev_DevDes(RESDEV11, 0x1f);						//31:RESERVE Device 11
+			break;
+		}
+		case 21:												//RESERVE Device 11 Report Descriptor
+		{
+			getDev_RepDes(RESDEV11, 0x1f);						//32:RESERVE Device 11
+			break;
+		}
+		case 22:												//RESERVE Device 12 Descriptor
+		{
+			getDev_DevDes(RESDEV12, 0x20);						//32:RESERVE Device 12
+			break;
+		}
+		case 23:												//RESERVE Device 12 Report Descriptor
+		{
+			getDev_RepDes(RESDEV12, 0x20);						//32:RESERVE Device 12
+			break;
+		}
+		case 24:												//RESERVE Device 13 Descriptor
+		{
+			getDev_DevDes(RESDEV13, 0x21);						//33:RESERVE Device 13
+			break;
+		}
+		case 25:												//RESERVE Device 13 Report Descriptor
+		{
+			getDev_RepDes(RESDEV13, 0x21);						//33:RESERVE Device 13
+			break;
+		}
+		case 26:												//RESERVE Device 14 Descriptor
 		{
 			if((I2CMstEndFlag==1) && (TIDMstHandFlag==1))
 			{
 				if(I2CMstTimeOutFlag==1)
 				{
-					TIDMstInitDevState &= ~(1<<KEYDEV);
+					TIDMstInitDevState &= ~(1<<RESDEV14);
 					TIDMstStage=0;
 					TIDMstInitFIN=1;
 					TIDMstFirstInitFIN=1;
 				}
 				else if(I2CMS_MstRxData[0]==DEV_NOT_INIT)
 				{
-					TIDMstInitDevState &= ~(1<<KEYDEV);
+					TIDMstInitDevState &= ~(1<<RESDEV14);
 					TIDMstStage=0;
 					TIDMstInitFIN=1;
 					TIDMstFirstInitFIN=1;
@@ -505,20 +648,20 @@ void TIDMst_GetDev()
 			}
 			else
 			{
-				I2CMstDev = 8;
-				I2C_MASTER_Read_Write_Start(0x1c, 0);		//28
-				I2C_MASTER_Read_Write_Con(0x1c, 0x01, I2C_READ);
+				I2CMstDev = RESDEV14;
+				I2C_MASTER_Read_Write_Start(0x22, 0);		//34
+				I2C_MASTER_Read_Write_Con(0x22, 0x01, I2C_READ);
 				TIDMstHandFlag=0;
 			}
 			break;
 		}
-		case 15:																		//KEY Report Descriptor
+		case 27:													//RESERVE Device 14 Report Descriptor
 		{
 			if((I2CMstEndFlag==1) && (TIDMstHandFlag==1))
 			{
 				if(I2CMstTimeOutFlag==1) 
 				{
-					TIDMstInitDevState &= ~(1<<KEYDEV);
+					TIDMstInitDevState &= ~(1<<RESDEV14);
 					TIDMstStage=0;
 					TIDMstInitFIN=1;
 					TIDMstFirstInitFIN=1;
@@ -526,9 +669,9 @@ void TIDMst_GetDev()
 				else
 				{
 					HandRptDesc();
-					if((TIDMstInitDevState & (1<<KEYDEV))==0)
-					TIDMstDevState[KEYDEV] |= 4;				//device operate:				get feature(4)
-					TIDMstInitDevState |= 1<<KEYDEV; 
+					if((TIDMstInitDevState & (1<<RESDEV14))==0)
+					TIDMstDevState[RESDEV14] |= 4;				//device operate:				get feature(4)
+					TIDMstInitDevState |= 1<<RESDEV14; 
 					TIDMstStage=0;
 					TIDMstInitFIN=1;
 					TIDMstFirstInitFIN=1;
@@ -537,9 +680,9 @@ void TIDMst_GetDev()
 			}
 			else
 			{
-				I2CMstDev = 8;
-				I2C_MASTER_Read_Write_Start(0x1c, 0);		//28
-				I2C_MASTER_Read_Write_Con(0x1c, 0x02, I2C_READ);
+				I2CMstDev = RESDEV14;
+				I2C_MASTER_Read_Write_Start(0x22, 0);		//34
+				I2C_MASTER_Read_Write_Con(0x22, 0x02, I2C_READ);
 				TIDMstHandFlag=0;
 			}
 			break;
@@ -694,6 +837,7 @@ void TIDMstDevTRx()
 		case 0:
 		{
 			TIDMstTRxCounter = 4;
+			TIDMstInitFIN = 2;
 			break;
 		}
 		/* Buzzer Input(4) */
@@ -864,28 +1008,172 @@ void TIDMstDevTRx()
 			DevTRx_SetFeat(IRDEV, KEYDEV, 0x1b);
 			break;
 		}
-		/* Key Input(32) */
+		/* KEY Input(32) */
 		case (4*KEYDEV):
 		{
-			DevTRx_In(KEYDEV, BUZZERDEV, 0x1c);
+			DevTRx_In(KEYDEV, RESDEV9, 0x1c);
 			break;
 		}
-		/* Key Output(33) */
+		/* KEY Output(33) */
 		case (4*KEYDEV+1):
 		{
-			DevTRx_Out(KEYDEV, BUZZERDEV, 0x1c);
+			DevTRx_Out(KEYDEV, RESDEV9, 0x1c);
 			break;
 		}
-		/* Key Get Feature(34) */
+		/* KEY Get Feature(34) */
 		case (4*KEYDEV+2):
 		{
-			DevTRx_GetFeat(KEYDEV, BUZZERDEV, 0x1c);
+			DevTRx_GetFeat(KEYDEV, RESDEV9, 0x1c);
 			break;
 		}
-		/* Key Set Feature(35) */
+		/* KEY Set Feature(35) */
 		case (4*KEYDEV+3):
 		{
-			DevTRx_SetFeat(KEYDEV, BUZZERDEV, 0x1c);
+			DevTRx_SetFeat(KEYDEV, RESDEV9, 0x1c);
+			break;
+		}
+		/* RESDEV9 Input(36) */
+		case (4*RESDEV9):
+		{
+			DevTRx_In(RESDEV9, RESDEV10, 0x1d);
+			break;
+		}
+		/* RESDEV9 Output(37) */
+		case (4*RESDEV9+1):
+		{
+			DevTRx_Out(RESDEV9, RESDEV10, 0x1d);
+			break;
+		}
+		/* RESDEV9 Get Feature(38) */
+		case (4*RESDEV9+2):
+		{
+			DevTRx_GetFeat(RESDEV9, RESDEV10, 0x1d);
+			break;
+		}
+		/* RESDEV9 Set Feature(39) */
+		case (4*RESDEV9+3):
+		{
+			DevTRx_SetFeat(RESDEV9, RESDEV10, 0x1d);
+			break;
+		}
+		/* RESDEV10 Input(40) */
+		case (4*RESDEV10):
+		{
+			DevTRx_In(RESDEV10, RESDEV11, 0x1e);
+			break;
+		}
+		/* RESDEV10 Output(41) */
+		case (4*RESDEV10+1):
+		{
+			DevTRx_Out(RESDEV10, RESDEV11, 0x1e);
+			break;
+		}
+		/* RESDEV10 Get Feature(42) */
+		case (4*RESDEV10+2):
+		{
+			DevTRx_GetFeat(RESDEV10, RESDEV11, 0x1e);
+			break;
+		}
+		/* RESDEV10 Set Feature(43) */
+		case (4*RESDEV10+3):
+		{
+			DevTRx_SetFeat(RESDEV10, RESDEV11, 0x1e);
+			break;
+		}
+		/* RESDEV11 Input(44) */
+		case (4*RESDEV11):
+		{
+			DevTRx_In(RESDEV11, RESDEV12, 0x1f);
+			break;
+		}
+		/* RESDEV11 Output(45) */
+		case (4*RESDEV11+1):
+		{
+			DevTRx_Out(RESDEV11, RESDEV12, 0x1f);
+			break;
+		}
+		/* RESDEV11 Get Feature(46) */
+		case (4*RESDEV11+2):
+		{
+			DevTRx_GetFeat(RESDEV11, RESDEV12, 0x1f);
+			break;
+		}
+		/* RESDEV11 Set Feature(47) */
+		case (4*RESDEV11+3):
+		{
+			DevTRx_SetFeat(RESDEV11, RESDEV12, 0x1f);
+			break;
+		}
+		/* RESDEV12 Input(48) */
+		case (4*RESDEV12):
+		{
+			DevTRx_In(RESDEV12, RESDEV13, 0x20);
+			break;
+		}
+		/* RESDEV12 Output(49) */
+		case (4*RESDEV12+1):
+		{
+			DevTRx_Out(RESDEV12, RESDEV13, 0x20);
+			break;
+		}
+		/* RESDEV12 Get Feature(50) */
+		case (4*RESDEV12+2):
+		{
+			DevTRx_GetFeat(RESDEV12, RESDEV13, 0x20);
+			break;
+		}
+		/* RESDEV12 Set Feature(51) */
+		case (4*RESDEV12+3):
+		{
+			DevTRx_SetFeat(RESDEV12, RESDEV13, 0x20);
+			break;
+		}
+		/* RESDEV13 Input(52) */
+		case (4*RESDEV13):
+		{
+			DevTRx_In(RESDEV13, RESDEV14, 0x21);
+			break;
+		}
+		/* RESDEV13 Output(53) */
+		case (4*RESDEV13+1):
+		{
+			DevTRx_Out(RESDEV13, RESDEV14, 0x21);
+			break;
+		}
+		/* RESDEV13 Get Feature(54) */
+		case (4*RESDEV13+2):
+		{
+			DevTRx_GetFeat(RESDEV13, RESDEV14, 0x21);
+			break;
+		}
+		/* RESDEV13 Set Feature(55) */
+		case (4*RESDEV13+3):
+		{
+			DevTRx_SetFeat(RESDEV13, RESDEV14, 0x21);
+			break;
+		}
+		/* RESDEV14 Input(56) */
+		case (4*RESDEV14):
+		{
+			DevTRx_In(RESDEV14, 0, 0x22);
+			break;
+		}
+		/* RESDEV14 Output(57) */
+		case (4*RESDEV14+1):
+		{
+			DevTRx_Out(RESDEV14, 0, 0x22);
+			break;
+		}
+		/* RESDEV14 Get Feature(58) */
+		case (4*RESDEV14+2):
+		{
+			DevTRx_GetFeat(RESDEV14, 0, 0x22);
+			break;
+		}
+		/* RESDEV14 Set Feature(59) */
+		case (4*RESDEV14+3):
+		{
+			DevTRx_SetFeat(RESDEV14, 0, 0x22);
 			break;
 		}
 	}

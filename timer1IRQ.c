@@ -24,7 +24,7 @@ volatile uint32_t TMR1TimerCounter;				// 1s timer counter
 //	Sleep every 1s and wake up
 // *************************************************************************
 
-void Timer1Init()
+void Timer1Init(uint16_t freq)
 {
 	/* Enable peripheral clock */
 	CLK_EnableModuleClock(TMR1_MODULE);
@@ -35,8 +35,8 @@ void Timer1Init()
   /* Enable Timer0 NVIC */
   NVIC_EnableIRQ(TMR1_IRQn);	
 	
-	/* Open Timer0 time-out frequency to 10 Hz in periodic mode */
-  TIMER_Open(TIMER1, TIMER_PERIODIC_MODE, 10);
+	/* Open Timer0 time-out frequency to (freq) Hz in periodic mode */
+  TIMER_Open(TIMER1, TIMER_PERIODIC_MODE, freq);
 	
 	/* Enable Timer0 time-out interrupt and wake-up function */
   TIMER_EnableInt(TIMER1);

@@ -25,6 +25,8 @@
 void IR_Init(void);
 void SendIR(void);
 void ReceiveIR(void);
+void IR_Control(void);
+void IR_Check(void);
 
 extern uint8_t TxIR_CODE[4];
 extern uint8_t RxIR_CODE[4];

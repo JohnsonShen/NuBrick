@@ -14,22 +14,20 @@
  *=============================================================*
  */
  
-#include "battery.h"
-#include "timer1IRQ.h"
-#include "tidmst.h"
-
+#include "lr.h"
+ 
 /*----------------------------------------------------------------------------------------*/
 /* Define global variables and constants                                                  */
 /*----------------------------------------------------------------------------------------*/
-uint16_t	BatteryData;
-int32_t 	BatOverTimeCounter;			//Sonar alerm time
+uint16_t  	LrData;
+uint16_t  	LrOverTimeCounter;
 
 /* ---------------------------------------------------------------------------------------*/
 /*  ADC initialize setting																																*/
 /*	Set PB2 as ADC converter																															*/
 /*  Select APB0/8 as ADC module clock source  																						*/
 /* ---------------------------------------------------------------------------------------*/
-void Battery_Init()
+void Lr_Init()
 {
 	SYS_UnlockReg();
 	/* Enable EADC module clock */
@@ -40,12 +38,8 @@ void Battery_Init()
 	/* Configure the GPB0 - GPB3 ADC analog input pins.  */
 	SYS->GPB_MFPL &= ~SYS_GPB_MFPL_PB1MFP_Msk;
 	SYS->GPB_MFPL |= SYS_GPB_MFPL_PB1MFP_EADC_CH1;
+	
 	GPIO_DISABLE_DIGITAL_PATH(PB, BIT1);
-	//LED
-	SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk);
-	SYS->GPA_MFPL |= SYS_GPA_MFPL_PA2MFP_GPIO;
-	GPIO_SetMode(PA,BIT2,GPIO_MODE_OUTPUT);
-	PA2 = 1;
 	
 	/* Set the ADC internal sampling time, input mode as single-end and enable the A/D converter */
 	EADC_Open(EADC, EADC_CTL_DIFFEN_SINGLE_END);
@@ -61,49 +55,49 @@ void Battery_Init()
 	EADC_ENABLE_INT(EADC, 0x2);//Enable sample module A/D ADINT0 interrupt.
 	EADC_ENABLE_SAMPLE_MODULE_INT(EADC, 1, 0x2);//Enable sample module 0 interrupt.
 
-	BatDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
-	BatDev.DevDesc.RptDesc_leng = 36;						//Report descriptor
-	BatDev.DevDesc.InRptLeng = 5;								//Input report
-	BatDev.DevDesc.OutRptLeng = 0;							//Output report
-	BatDev.DevDesc.GetFeatLeng = 6;							//Get feature
-	BatDev.DevDesc.SetFeatLeng = 6;							//Set feature
-	BatDev.DevDesc.CID = 0;											//manufacturers ID
-	BatDev.DevDesc.DID = 0;											//Product ID
-	BatDev.DevDesc.PID = 0;											//Device firmware revision
-	BatDev.DevDesc.UID = 0;											//Device Class type
-	BatDev.DevDesc.UCID = 0;										//reserve
+	ResDev9.DevDesc.DevDesc_leng = 26;						//Report descriptor
+	ResDev9.DevDesc.RptDesc_leng = 36;						//Report descriptor
+	ResDev9.DevDesc.InRptLeng = 5;								//Input report
+	ResDev9.DevDesc.OutRptLeng = 0;							//Output report
+	ResDev9.DevDesc.GetFeatLeng = 6;							//Get feature
+	ResDev9.DevDesc.SetFeatLeng = 6;							//Set feature
+	ResDev9.DevDesc.CID = 0;											//manufacturers ID
+	ResDev9.DevDesc.DID = 0;											//Product ID
+	ResDev9.DevDesc.PID = 0;											//Device firmware revision
+	ResDev9.DevDesc.UID = 0;											//Device Class type
+	ResDev9.DevDesc.UCID = 0;										//reserve
 	/* Feature */
-	BatDev.Feature.data1.minimum = 0;						//Sleep period
-	BatDev.Feature.data1.maximum = 1024;
-	BatDev.Feature.data1.value = 100;
-	BatDev.Feature.data2.minimum = 0;						//Battery alerm value
-	BatDev.Feature.data2.maximum = 100;
-	BatDev.Feature.data2.value = 50;
-	BatDev.Feature.arg[0] = 1;
-	BatDev.Feature.arg[1] = 2;
-	BatDev.Feature.datalen[0] = 2;
-	BatDev.Feature.datalen[1] = 2;
-	BatDev.Feature.dataNum = 2;
+	ResDev9.Feature.data1.minimum = 0;						//Sleep period
+	ResDev9.Feature.data1.maximum = 1024;
+	ResDev9.Feature.data1.value = 100;
+	ResDev9.Feature.data2.minimum = 0;						//Light resistant alerm value
+	ResDev9.Feature.data2.maximum = 100;
+	ResDev9.Feature.data2.value = 20;
+	ResDev9.Feature.arg[0] = 1;
+	ResDev9.Feature.arg[1] = 2;
+	ResDev9.Feature.datalen[0] = 2;
+	ResDev9.Feature.datalen[1] = 2;
+	ResDev9.Feature.dataNum = 2;
 	/* Input */
-	BatDev.Input.data1.minimum = 0;							//Battery value
-	BatDev.Input.data1.maximum = 100;
-	BatDev.Input.data1.value = 100;
-	BatDev.Input.data2.minimum = 0;							//Over flag
-	BatDev.Input.data2.maximum = 1;
-	BatDev.Input.data2.value = 0;
-	BatDev.Input.arg[0] = 1;
-	BatDev.Input.arg[1] = 2;
-	BatDev.Input.datalen[0] = 2;
-	BatDev.Input.datalen[1] = 1;
-	BatDev.Input.dataNum = 2;
+	ResDev9.Input.data1.minimum = 0;							//light resistance value
+	ResDev9.Input.data1.maximum = 100;
+	ResDev9.Input.data1.value = 100;
+	ResDev9.Input.data2.minimum = 0;							//Over flag
+	ResDev9.Input.data2.maximum = 1;
+	ResDev9.Input.data2.value = 0;
+	ResDev9.Input.arg[0] = 1;
+	ResDev9.Input.arg[1] = 2;
+	ResDev9.Input.datalen[0] = 2;
+	ResDev9.Input.datalen[1] = 1;
+	ResDev9.Input.dataNum = 2;
 	/* Output */
-	BatDev.Output.dataNum = 0;
+	ResDev9.Output.dataNum = 0;
 }
 
 // ----------------------------------------------------------------------------------------
 //  Start ADC conversion
 // ----------------------------------------------------------------------------------------
-void GetBattery(void)
+void GetLr(void)
 {
 	// Clear the ADC INT0 interrupt flag
 	EADC_CLR_INT_FLAG(EADC, 0x2);
@@ -112,53 +106,20 @@ void GetBattery(void)
 	//Wait ADC interrupt (g_u32AdcIntFlag will be set at IRQ_Handler function)
 	while(EADC_GET_INT_FLAG(EADC, 0x2) == 0);
 	//Trigger sample module 0 to start A/D conversion
-	BatteryData = ((EADC_GET_CONV_DATA(EADC, 1))*100/4096);
-	
+	LrData = ((EADC_GET_CONV_DATA(EADC, 1))*100/4096);
+
 	/* Update TID value */
-	BatDev.Input.data1.value = BatteryData;
-	if(BatDev.Input.data1.value < BatDev.Feature.data2.value)
+	ResDev9.Input.data1.value = LrData;
+	if(ResDev9.Input.data1.value > ResDev9.Feature.data2.value)
 	{
-		BatDev.Input.data2.value = 1;
-		BatOverTimeCounter = getTickCount()+ BatDev.Feature.data3.value*1000;
+		ResDev9.Input.data2.value = 1;
+		LrOverTimeCounter = getTickCount()+ ResDev9.Feature.data3.value*1000;
+	}
+	else
+	{
+		ResDev9.Input.data2.value = 0;
 	}
 	/* reset alerm flag after 10s */
-	if(BatDev.Input.data2.value == 1)
-	{
-		if(getTickCount() > BatOverTimeCounter)
-			BatDev.Input.data2.value = 0;
-		if(BatDev.Output.data1.value == 1)
-			BatDev.Input.data2.value = 0;
-	}
+	if(ResDev9.Output.data1.value == 1)
+		ResDev9.Input.data2.value = 0;
 }
-
-void PowerControl()
-{
-	
-}
-
-void MasterControl(void)
-{
-    /* Master Store data */
-    TIDMstUpdateDevState();
-    /* Master recheck device */
-    if(TIDMstFirstInitFIN==1)
-    {
-        if(TMR1TimerCounter > 10)
-        {
-            if(I2CMstEndFlag==1)
-            {
-                TIDMstInitFIN=0;
-                TMR1TimerCounter=0;
-                I2C_Close(I2C_MS_PORT);
-                I2C_MS_Master_Restart();
-            }
-        }
-        else
-        {
-            TIDMstInitFIN = 1;
-            TMR1TimerCounter++;
-        }
-    }
-    GetBattery();    
-}
-

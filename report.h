@@ -25,17 +25,23 @@
 #include "timer1IRQ.h"
 #include "report_AP.h"
 
-#define REPORT_INDEX				0
-#define REPORT_BATTERY				1
-#define REPORT_BUZZER				2
-#define REPORT_LED    				3
-#define REPORT_AHRS					4
-#define REPORT_SONAR				5
-#define REPORT_TEMP					6
-#define REPORT_GAS					7
-#define REPORT_IR					8
-#define REPORT_KEY					9
-#define REPORT_DEVLINK				10
+#define REPORT_BATTERY				0
+#define REPORT_BUZZER				1
+#define REPORT_LED    				2
+#define REPORT_AHRS					3
+#define REPORT_SONAR				4
+#define REPORT_TEMP					5
+#define REPORT_GAS					6
+#define REPORT_IR					7
+#define REPORT_KEY					8
+#define REPORT_RESDEV9				9
+#define REPORT_RESDEV10				10
+#define REPORT_RESDEV11				11
+#define REPORT_RESDEV12				12
+#define REPORT_RESDEV13				13
+#define REPORT_RESDEV14				14
+#define REPORT_INDEX				15
+#define REPORT_DEVLINK				16
 
 #define REPORT_FEATURE 			      1
 #define REPORT_INPUT  						2
@@ -52,4 +58,20 @@ extern char stream_mode;
 void report_sensors(void);
 void report_status(void);
 void CommandProcess(void);
+
+void report_battery(void);
+void report_buzzer(void);
+void report_led(void);
+void report_ahrs(void);
+void report_sonar(void);
+void report_temp(void);
+void report_gas(void);
+void report_ir(void);
+void report_key(void);
+void report_resDev9(void);
+void report_resDev10(void);
+void report_resDev11(void);
+void report_resDev12(void);
+void report_resDev13(void);
+void report_resDev14(void);
 #endif

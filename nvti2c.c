@@ -53,7 +53,7 @@ void I2CX_IRQHandler(uint8_t id)
 	I2C_T* I2C_PORT;
 	if(id==0)
 		I2C_PORT = I2C0;
-	else if(id==1)
+	else //if(id==1)
 		I2C_PORT = I2C1;	
 
 	u32Status = I2C_GET_STATUS(I2C_PORT);
@@ -92,7 +92,7 @@ void I2CX_IRQHandler(uint8_t id)
 			case 0x48: {
 				I2C_SET_CONTROL_REG(I2C_PORT, I2C_CTL_STO_SI);
 				//I2C_SET_CONTROL_REG(I2C_PORT, I2C_CTL_SI);
-				I2C_SET_CONTROL_REG(I2C_PORT, I2C_CTL_STA);
+				//I2C_SET_CONTROL_REG(I2C_PORT, I2C_CTL_STA);
 				//printf("I2C bus error\n");
 				break;
 			}

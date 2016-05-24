@@ -362,7 +362,7 @@
               <MiscControls></MiscControls>
               <Define>M451</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\Library\Device\Nuvoton\M451Series\Include;..\..\..\Library\StdDriver\inc;.\include;..\AHRSLib\include</IncludePath>
+              <IncludePath>..\..\Library\Device\Nuvoton\M451Series\Include;..\..\Library\StdDriver\inc;.\include;..\..\Library\CMSIS\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -408,12 +408,12 @@
             <File>
               <FileName>system_M451Series.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\Device\Nuvoton\M451Series\Source\system_M451Series.c</FilePath>
+              <FilePath>..\..\Library\Device\Nuvoton\M451Series\Source\system_M451Series.c</FilePath>
             </File>
             <File>
               <FileName>startup_M451Series.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\Library\Device\Nuvoton\M451Series\Source\ARM\startup_M451Series.s</FilePath>
+              <FilePath>..\..\Library\Device\Nuvoton\M451Series\Source\ARM\startup_M451Series.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -486,11 +486,6 @@
               <FilePath>.\sonar.c</FilePath>
             </File>
             <File>
-              <FileName>temperature.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\temperature.c</FilePath>
-            </File>
-            <File>
               <FileName>wirecommand.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\wirecommand.c</FilePath>
@@ -561,11 +556,6 @@
               <FilePath>.\PWM0P2_IRQ.c</FilePath>
             </File>
             <File>
-              <FileName>PWM0P0_IRQ.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\PWM0P0_IRQ.c</FilePath>
-            </File>
-            <File>
               <FileName>timer3IRQ.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\timer3IRQ.c</FilePath>
@@ -590,6 +580,21 @@
               <FileType>1</FileType>
               <FilePath>.\devCheck.c</FilePath>
             </File>
+            <File>
+              <FileName>lr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lr.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_HTU21D.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\i2c_HTU21D.c</FilePath>
+            </File>
+            <File>
+              <FileName>temp_HTU21D.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\temp_HTU21D.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -598,52 +603,52 @@
             <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\gpio.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\gpio.c</FilePath>
             </File>
             <File>
               <FileName>i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\i2c.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\i2c.c</FilePath>
             </File>
             <File>
               <FileName>pwm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\pwm.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\pwm.c</FilePath>
             </File>
             <File>
               <FileName>timer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\timer.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\timer.c</FilePath>
             </File>
             <File>
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\sys.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\sys.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\uart.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\uart.c</FilePath>
             </File>
             <File>
               <FileName>clk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\clk.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\clk.c</FilePath>
             </File>
             <File>
               <FileName>fmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\fmc.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\fmc.c</FilePath>
             </File>
             <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\spi.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\spi.c</FilePath>
             </File>
             <File>
               <FileName>eadc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Library\StdDriver\src\eadc.c</FilePath>
+              <FilePath>..\..\Library\StdDriver\src\eadc.c</FilePath>
             </File>
             <File>
               <FileName>retarget.c</FileName>
@@ -731,11 +736,6 @@
               <FilePath>.\sonar.h</FilePath>
             </File>
             <File>
-              <FileName>temperature.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\temperature.h</FilePath>
-            </File>
-            <File>
               <FileName>wirecommand.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\wirecommand.h</FilePath>
@@ -821,11 +821,6 @@
               <FilePath>.\PWM0P2_IRQ.h</FilePath>
             </File>
             <File>
-              <FileName>PWM0P0_IRQ.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\PWM0P0_IRQ.h</FilePath>
-            </File>
-            <File>
               <FileName>timer3IRQ.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\timer3IRQ.h</FilePath>
@@ -844,6 +839,21 @@
               <FileName>GPE_IRQ.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\GPE_IRQ.h</FilePath>
+            </File>
+            <File>
+              <FileName>lr.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\lr.h</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_HTU21D.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\i2c_HTU21D.h</FilePath>
+            </File>
+            <File>
+              <FileName>temp_HTU21D.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\temp_HTU21D.h</FilePath>
             </File>
           </Files>
         </Group>

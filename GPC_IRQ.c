@@ -68,9 +68,26 @@ void GPC_IRQHandler(void)
     {
         GPIO_CLR_INT_FLAG(PC, BIT5);
 		if(PC5 == 0)
-			keyState |= 1 << 6;
+			keyState |= 1 << 5;
 		else if(PC5 == 1)
+			keyState &= ~(1 << 5);
+    }
+    /* To check if PC.6 interrupt occurred */
+    if(GPIO_GET_INT_FLAG(PC, BIT6))
+    {
+        GPIO_CLR_INT_FLAG(PC, BIT6);
+		if(PC6 == 0)
+			keyState |= 1 << 6;
+		else if(PC6 == 1)
 			keyState &= ~(1 << 6);
     }
 	KeyDev.Input.data1.value = keyState;
+	if(KeyDev.Input.data1.value > 0)
+	{
+		PA2 = 0;
+	}
+	else
+	{
+		PA2 = 1;
+	}
 }

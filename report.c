@@ -265,52 +265,94 @@ void report_key()
 	}	
 }
 
+void report_resDev9()
+{
+	if (report_format == REPORT_FORMAT_TEXT)
+	{
+		/* TBD */
+	}
+	else if (report_format == REPORT_FORMAT_BINARY)
+	{
+		report_binary(ResDev9);
+	}	
+}
+
+void report_resDev10()
+{
+	if (report_format == REPORT_FORMAT_TEXT)
+	{
+		/* TBD */
+	}
+	else if (report_format == REPORT_FORMAT_BINARY)
+	{
+		report_binary(ResDev10);
+	}	
+}
+
+void report_resDev11()
+{
+	if (report_format == REPORT_FORMAT_TEXT)
+	{
+		/* TBD */
+	}
+	else if (report_format == REPORT_FORMAT_BINARY)
+	{
+		report_binary(ResDev11);
+	}	
+}
+
+void report_resDev12()
+{
+	if (report_format == REPORT_FORMAT_TEXT)
+	{
+		/* TBD */
+	}
+	else if (report_format == REPORT_FORMAT_BINARY)
+	{
+		report_binary(ResDev12);
+	}	
+}
+
+void report_resDev13()
+{
+	if (report_format == REPORT_FORMAT_TEXT)
+	{
+		/* TBD */
+	}
+	else if (report_format == REPORT_FORMAT_BINARY)
+	{
+		report_binary(ResDev13);
+	}	
+}
+
+void report_resDev14()
+{
+	if (report_format == REPORT_FORMAT_TEXT)
+	{
+		/* TBD */
+	}
+	else if (report_format == REPORT_FORMAT_BINARY)
+	{
+		report_binary(ResDev14);
+	}	
+}
+
 void report_sensors()
 {
 	if(stream_mode==STREAM_PAUSE)
 		return;
+
 	if (report_mode == REPORT_INDEX) {
 		report_index();
 	}
 	if (report_mode == REPORT_DEVLINK) {
 		report_devLink();
 	}
-	else if(report_mode == REPORT_BATTERY)
-	{
-		report_battery();
-	}
-	else if(report_mode == REPORT_BUZZER) 
-	{
-		report_buzzer();
-	}
-	else if(report_mode == REPORT_LED) 
-	{
-		report_led();
-	}
-	else if(report_mode == REPORT_AHRS)
-	{
-		report_ahrs();
-	}
-	else if(report_mode == REPORT_SONAR) 
-	{
-		report_sonar();
-	}
-	else if(report_mode == REPORT_TEMP)
-	{
-		report_temp();
-	}
-	else if(report_mode == REPORT_GAS) 
-	{
-		report_gas();
-	}
-	else if(report_mode == REPORT_IR)
-	{
-		report_ir();
-	}
-	else if(report_mode == REPORT_KEY)
-	{
-		report_key();
-	}
+    else if (/* report_mode >= 0 && */ report_mode < MAX_TID_DEV)
+    {
+        if (pTidList[report_mode]->func.pfnReport)
+            pTidList[report_mode]->func.pfnReport();
+    }
 }
 
 // *******************************************************
@@ -599,6 +641,36 @@ void CommandProcess()
 				else if(mode == 'k')						//KEY
 				{
 					report_mode = REPORT_KEY;
+					reportNewTabFlag = 0;					
+				}
+				else if(mode == 'A')						//Reserved device 9
+				{
+					report_mode = REPORT_RESDEV9;
+					reportNewTabFlag = 0;					
+				}
+				else if(mode == 'B')						//Reserved device 10
+				{
+					report_mode = REPORT_RESDEV10;
+					reportNewTabFlag = 0;					
+				}
+				else if(mode == 'C')						//Reserved device 11
+				{
+					report_mode = REPORT_RESDEV11;
+					reportNewTabFlag = 0;					
+				}
+				else if(mode == 'D')						//Reserved device 12
+				{
+					report_mode = REPORT_RESDEV12;
+					reportNewTabFlag = 0;					
+				}
+				else if(mode == 'E')						//Reserved device 13
+				{
+					report_mode = REPORT_RESDEV13;
+					reportNewTabFlag = 0;					
+				}
+				else if(mode == 'F')						//Reserved device 14
+				{
+					report_mode = REPORT_RESDEV14;
 					reportNewTabFlag = 0;					
 				}
 				else if(mode == 'r')						//Restart

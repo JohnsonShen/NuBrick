@@ -23,9 +23,17 @@ void GPE_IRQHandler(void)
     {
         GPIO_CLR_INT_FLAG(PE, BIT0);
 		if(PE0 == 0)
-			keyState |= 1 << 5;
+			keyState |= 1 << 7;
 		else if(PE0 == 1)
-			keyState &= ~(1 << 5);
-		KeyDev.Input.data1.value = keyState;
+			keyState &= ~(1 << 7);
     }
+	KeyDev.Input.data1.value = keyState;
+	if(KeyDev.Input.data1.value > 0)
+	{
+		PA2 = 0;
+	}
+	else
+	{
+		PA2 = 1;
+	}
 }

@@ -44,6 +44,11 @@ void SonarInit()
 	/* IR Rx:PWM capture(PC4,PWM0_CH4),quasi mode for no pull up R */
 	SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC4MFP_Msk)) | SYS_GPC_MFPL_PC4MFP_PWM0_CH4;
 	GPIO_SetMode(PC,BIT4,GPIO_MODE_QUASI);
+	//LED
+	SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk);
+	SYS->GPA_MFPL |= SYS_GPA_MFPL_PA2MFP_GPIO;
+	GPIO_SetMode(PA,BIT2,GPIO_MODE_OUTPUT);
+	PA2 = 1;
 	
 	/* Unlock protected registers */
 	SYS_UnlockReg();
@@ -160,11 +165,13 @@ void SonarTimeOutCheck()
 	SonDev.Input.data1.value = Sonar_Distance_OUT;
 	if(SonDev.Input.data1.value < SonDev.Feature.data2.value)
 	{
+		PA2 = 0;
 		SonDev.Input.data2.value = 1;
 		//SonarOverTimeCounter = getTickCount()+ SonDev.Feature.data3.value*1000;
 	}
 	else
 	{
+		PA2 = 1;
 		SonDev.Input.data2.value = 0;
 	}
 	
@@ -182,5 +189,6 @@ void SonarTimeOutCheck()
 	{
 		SonarExecuteFLAG=0;
 		SonarErrorCounter++;
+		CLK_PowerDown();
 	}
 }

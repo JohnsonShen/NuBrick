@@ -25,26 +25,26 @@
 #include "nvti2c.h"
 #include "devCheck.h"
 
-#define I2C_WRITE								0		//I2C write bit
-#define I2C_READ								1		//I2C read bit
-#define SONAR_I2CDATA						1
+#define I2C_WRITE						0		//I2C write bit
+#define I2C_READ						1		//I2C read bit
+#define SONAR_I2CDATA					1
 #define SONAR_I2CDATALEN				1
-#define GAS_I2CDATA							2
+#define GAS_I2CDATA						2
 #define GAS_I2CDATALEN					1
 #define BATTERY_I2CDATA					3
-#define BATTERY_I2CDATALEN			1
+#define BATTERY_I2CDATALEN				1
 #define BUZZER_I2CDATA					4
 #define BUZZER_I2CDATALEN				1
-#define TEMPERATURE_I2CDATA			5		//5,6,   2 bytes
-#define TEMPERATURE_I2CDATALEN	2		//2 bytes
-#define AHRS_I2CDATA						7		//7~12,  6 bytes
+#define TEMPERATURE_I2CDATA				5		//5,6,   2 bytes
+#define TEMPERATURE_I2CDATALEN			2		//2 bytes
+#define AHRS_I2CDATA					7		//7~12,  6 bytes
 #define AHRS_I2CDATALEN					6		//6 bytes
-#define IRTx_I2CDATA						13	//13~20, 8 bytes
+#define IRTx_I2CDATA					13		//13~20, 8 bytes
 #define IRTx_I2CDATALEN					8		//8 bytes
-#define IRRx_I2CDATA						21	//21~28, 8 bytes
+#define IRRx_I2CDATA					21		//21~28, 8 bytes
 #define IRRx_I2CDATALEN					8		//8 bytes
-#define SLEEP_REG								31	//SLEEP FLAG:1:SLEEP
-#define SLEEP_TICKER						0		//SLEEP Ticker:1:SLEEP
+#define SLEEP_REG						31		//SLEEP FLAG:1:SLEEP
+#define SLEEP_TICKER					0		//SLEEP Ticker:1:SLEEP
 #define DEV_NOT_INIT					2		//Device initialize not complete
 
 void I2C_MS_Slave_Init(void);

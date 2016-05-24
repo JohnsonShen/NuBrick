@@ -28,7 +28,7 @@
 #include "led.h"
 #include "Gas.h"
 #include "ir.h"
-#include "temperature.h"
+#include "lr.h"
 #include "retarget.h"
 #include "AHRSLib.h"
 #include "Sensors.h"
@@ -41,8 +41,92 @@
 #include "i2c_ms.h"
 #include "tiddev.h"
 #include "tidmst.h"
+#include "temp_HTU21D.h"
 
-volatile uint32_t RecentTimeCounter;
+#define MAX_TID_DEV         (15)
+#define EMBEDDED_TID_DEV    (9)
+
+/***********************************************
+ Customized session to add another sensor boards
+ ***********************************************/
+
+/*
+ To include your board header file which declares PTID_Device_T and control functions.
+ for example:
+
+ #include "lightsensor.h"
+
+ */
+//#include "lightsensor.h"
+
+
+PTID_Device_T pTidList[MAX_TID_DEV] =
+{
+    /* for embedded device boards */
+    
+    &BatDev,
+    &BuzDev,
+    &LedDev,
+    &AHRSDev,
+    &SonDev,
+    &TempDev,
+    &GasDev,
+    &IRDev,
+    &KeyDev,
+    
+    /* for custom device boards
+       fill your PTID_Device_T structure here to specified ID. */
+    
+    &ResDev9,       // ID 9
+    &ResDev10,       // ID 10
+    &ResDev11,       // ID 11
+    &ResDev12,       // ID 12
+    &ResDev13,       // ID 13
+    &ResDev14        // ID 14    
+};
+
+
+APFN_FUNC_T pfnDevFunc[MAX_TID_DEV] =
+{   
+    /*
+       Functions for each device:
+    
+        {Initial, Period, Pulling, Report}
+    
+        Initial : Init and configure device
+        Period  : Process device sensor data or set sensor once per 0.1 seconds.
+        Pulling : Process device sensor data or set sensor frequently.
+        Report  : Report process data to master
+    */
+    
+    /* for embedded device boards */
+    
+    {Battery_Init,      MasterControl,  NULL,               report_battery},
+    {Buzzer_Init,       NULL,           Buzzer_Control,     report_buzzer},
+    {Led_Init,          NULL,           Led_Control,        report_led},
+    {AHRS_Init,         AHRS_Control,   NULL,               report_ahrs},
+    {SonarInit,         SonarDetect,    SonarTimeOutCheck,  report_sonar},
+    {HTU21D_Init,   	WaitHTU21D,		GetHTU21DTemp,      report_temp},
+    {Gas_Init,          GetGas,         NULL,               report_gas},
+    {IR_Init,           IR_Control,     IR_Check,           report_ir},
+    {key_init,          NULL,           NULL,               report_key},
+    
+    /* for custom device boards
+       fill your four board functions here to specified ID. */
+    
+    {Lr_Init, GetLr, NULL, report_resDev9},   // For device ID 9
+    {NULL, NULL, NULL, report_resDev10},   // For device ID 10
+    {NULL, NULL, NULL, report_resDev11},   // For device ID 11
+    {NULL, NULL, NULL, report_resDev12},   // For device ID 12
+    {NULL, NULL, NULL, report_resDev13},   // For device ID 13
+    {NULL, NULL, NULL, report_resDev14}    // For device ID 14
+};
+
+/***********************************************
+ End of customized session
+ ***********************************************/
+
+volatile uint32_t RecentTimeCounter;    
 volatile uint32_t MainTimeMSCounter;
 
 #define SYSTEM_CLOCK 72000000
@@ -85,7 +169,9 @@ void setupUART()
 	/* Peripheral clock source */
 	CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UARTSEL_HIRC, CLK_CLKDIV0_UART(1));
 	/* Set PD multi-function pins for UART0 RXD, TXD */
+
 	SYS->GPD_MFPL = SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
+
 	/* Reset UART module */
 	SYS_ResetModule(UART0_RST);
 	/* Configure UART0 and set UART0 Baudrate */
@@ -95,93 +181,50 @@ void setupUART()
 
 void setup()
 {
+    int i;
+	
 	setupSystemClock();
 	setupUART();
 	setup_system_tick(SYSTEM_TICK_FREQ);
-	ID_Init();
+	ID_Init();  // MO: Is it also system init?
 	GetID();
+
 	/* Init AHRS I2C */
 	/* ----Initialize I2C slave mode--- */
 	if(devNum == 0)
 		I2C_MS_Master_Init();
 	else
 		I2C_MS_Slave_Init();
+
 	//I2CWakeUpInit();
-	TIDMstFirstInitFIN=0;
+
+	TIDMstFirstInitFIN = 0;
 	TIDMstInitFIN = 0;
 	TIDMstStage = 0;
 	TIDMstInitDevState = 1;
 	FlashInit();
-	/*load TID feature from flash*/
 
-
-	if(devNum == 0)
+    // Setup function pointers for default sensor boards.
+	for(i=0; i<MAX_TID_DEV; i++)
 	{
-		Battery_Init();
-		GetFlashTID(&BatDev.Feature, devNum);
-	}
-	else if(devNum == 1)
-	{
-		Buzzer_Init();
-		GetFlashTID(&BuzDev.Feature, devNum);
-	}
-	else if(devNum == 2)
-	{
-		Led_Init();
-		GetFlashTID(&LedDev.Feature, devNum);
-	}
-	else if(devNum == 3)
-	{
-		I2C_Init();
-		nvtAHRSInit();
-		SensorsInit();
-		AhrsParaInit();
-		GetFlashTID(&AHRSDev.Feature, devNum);
-	}
-	else if(devNum == 4)
-	{
-		SonarInit();
-		GetFlashTID(&SonDev.Feature, devNum);
-	}
-	else if(devNum == 5)
-	{
-		Init_DHT11_PWM0();
-		GetFlashTID(&TempDev.Feature, devNum);
-	}
-	else if(devNum == 6)
-	{
-		Gas_Init();
-		GetFlashTID(&GasDev.Feature, devNum);
-	}
-	else if(devNum == 7)
-	{
-		IR_Init();
-		GetFlashTID(&IRDev.Feature, devNum);
-	}
-	else if(devNum == 8)
-	{
-		key_init();
-		GetFlashTID(&KeyDev.Feature, devNum);
+		if (pTidList[i])
+		SetDeviceFunction(pTidList[i], &(pfnDevFunc[i]));
 	}
 
 
-
-
-  /* TID initialize */
+    // Call board init function
+    if (pTidList[devNum]->func.pfnSetup)
+        pTidList[devNum]->func.pfnSetup();
+    
+    // Load TID feature from flash
+    GetFlashTID(&(pTidList[devNum]->Feature), devNum);
+    
+    // Set Timer1 to (1000/value) in (Hz)
+    Timer1Init(1000 / (pTidList[devNum]->Feature.data1.value)); 
+    
+    /* TID initialize */
 	SlvDataInit();
 	MstDataInit();
-	
-	//==================TEST PIN==================
-//	SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC5MFP_Msk));
-//	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC5MFP_GPIO;
-//	GPIO_SetMode(PC,BIT5,GPIO_MODE_OUTPUT);
-//	PC5=1;
-//	SYS->GPE_MFPH &= ~SYS_GPE_MFPH_PE9MFP_Msk;
-//	GPIO_SetMode(PE,BIT9,GPIO_MODE_OUTPUT);
-//	PE9=1;
-	//==================TEST PIN==================
-	// Sleep mode setting, put this at last setup line
-	Timer1Init();
 }
 
 // Main Control loop
@@ -190,6 +233,7 @@ void loop()
 	CommandProcess();
 	TaskScheduler();
 	PowerControl();
+   
 	// ******************************************************
 	//                Get data for once erery 0.1s
 	// ******************************************************
@@ -197,74 +241,8 @@ void loop()
 	{
 		MainTimeMSCounter = getTickCount();
 
-		// ========================================================
-		//									TID Master
-		// ========================================================
-		if(devNum == 0)
-		{
-			/* Master Store data */
-			TIDMstUpdateDevState();
-			/* Master recheck device */
-			if(TIDMstFirstInitFIN==1)
-			{
-				if(TMR1TimerCounter > 10)
-				{
-					if(I2CMstEndFlag==1)
-					{
-						TIDMstInitFIN=0;
-						TMR1TimerCounter=0;
-						I2C_Close(I2C_MS_PORT);
-						I2C_MS_Master_Restart();
-					}
-				}
-				else
-				{
-					TMR1TimerCounter++;
-				}
-			}
-			GetBattery();
-		}
-		// ========================================================
-		//									TID Slave
-		// ========================================================
-		// -------------AHRS----------------
-		else if(devNum == 3)
-		{
-			SensorsRead(SENSOR_ACC|SENSOR_GYRO,1);
-			nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
-			AhrsRead(AHRSDev.Feature.data2.value, AHRSDev.Feature.data3.value, AHRSDev.Output.data1.value);				//(Vibration Level, alerm time, clear flag)
-		}
-		// ------------SONAR----------------
-		else if(devNum == 4)
-		SonarDetect();
-		// ---------TEMPERATURE-------------
-		else if(devNum == 5)
-		{
-			if(TMR1TimerCounter == 3)
-			{
-				Get_DHT11();
-				TMR1TimerCounter = 0;
-			}
-			else
-			{
-				TMR1TimerCounter++;
-			}
-		}			
-		// -------------GAS-----------------
-		else if(devNum == 6)
-			GetGas();
-		// --------------IR-----------------
-		else if(devNum == 7)
-		{
-			if(IRDev.Output.data1.value == 1)																			//Period, Duty
-			{
-				IRTx_StartFlag = 1;
-				IR_LearnedFlag = IRDev.Feature.data3.value;
-				IR_Tx_LearnedDataByten = IRDev.Feature.data5.value;
-				IRDev.Output.data1.value=0;
-			}
-			SendIR();
-		}
+        if (pTidList[devNum]->func.pfnPeriod)
+            pTidList[devNum]->func.pfnPeriod();
 
 		RecentTimeCounter = TMR1INTCount;
 	}
@@ -289,60 +267,12 @@ void loop()
 		if(I2CMS_SlvRxFin==1)
 		TID_SlvRxUpdate();
 	}
+    
 	// -----------Slave part excute subfunction--------------
-	/*  BUZZER  */
-	if(devNum == 1)
-	{
-		if(BuzDev.Output.data2.value==0)
-		{
-			if(BuzDev.Output.data1.value == 1)																			//Period, Duty
-			{
-				Buzzer_Song_Start();
-				BuzDev.Output.data1.value = 0;																																		//Song
-			}
-		}
-		else
-		{
-			Buzzer_Stop();
-		}
-		Buzzer_Song_Check();
-	}
-	/*  LED  */
-	else if(devNum == 2)
-	{
-		if(LedDev.Output.data2.value==0)
-		{
-			if(LedDev.Output.data1.value == 1)																			//Period, Duty
-			{
-				Led_Blink_Start();
-				LedDev.Output.data1.value=0;
-			}
-		}
-		else
-		{
-			Led_Stop();
-		}
-		Led_Blink_Check();
-	}
-	/*   SONAR   */
-	else if(devNum == 4)
-	SonarTimeOutCheck();
-	/*   Temprature TIMEOUT   */
-	else if(devNum == 5)
-	{
-		DHT11GetDATA();				
-	}
-	/*   IR TIMEOUT   */
-	else if(devNum == 7)
-	{
-		if(IRDev.Output.data2.value == 1)																			
-		{
-			IR_LearnMode = 1;
-			IRDev.Output.data2.value=0;
-		}
-		ReceiveIR();
-	}
 
+    if (pTidList[devNum]->func.pfnPulling)
+        pTidList[devNum]->func.pfnPulling();
+    
 	// --------------TID Slave Store data-----------------
 	if(devNum != 0)
 	SlvDataStore();

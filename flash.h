@@ -17,6 +17,11 @@
 #define _FLASH_CTRL_H
 #include "def.h"
 //Calibration Section
+#ifdef M451
+#define PAGE_SIZE 512 //2K Bytes
+#else
+#define PAGE_SIZE 128 //512 Bytes
+#endif
 #define CAL_BASE	16
 #define FIELD_VALID_SIZE 1
 #define QUALITY_FACTOR_SIZE 1
@@ -41,5 +46,10 @@ int32_t i162dw(int16_t i16);
 int32_t float2dw(float f);
 uint32_t DATA_FLASH_Read(uint32_t);
 float dw2float(int32_t dw);
+
+#ifdef M451
+extern uint32_t data_buff[PAGE_SIZE];
+#endif
+extern uint32_t DATA_Flash_Start_ADD;
 
 #endif

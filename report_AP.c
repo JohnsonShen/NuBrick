@@ -30,8 +30,8 @@ void report_index_binary()
 	if(reportNewTabFlag==0)
 	{
 		i=0;
-		Report_state[i++] = 1;
-		Report_state[i++] = 1;
+		Report_state[i++] = 85;
+		Report_state[i++] = 85;
 		Report_state[i++] = INDEX_REPORT_LENGTH;								//total length about Index
 		Report_state[i++] = INDEX_REPORT_LENGTH >> 8;
 		Report_state[i++] = DEVICE_NUMBER;											//how many device is prepared to be used
@@ -88,14 +88,13 @@ void report_index_binary()
 void report_devLink_binary()
 {
 	uint8_t Report_state[24];
-	uint16_t devLinkState[2];
 	uint8_t i;
 
 	if(reportNewTabFlag==0)
 	{
 		i=0;
-		Report_state[i++] = 1;
-		Report_state[i++] = 1;
+		Report_state[i++] = 85;
+		Report_state[i++] = 85;
 		Report_state[i++] = DEVICELINK_REPORT_LENGTH;								//total length about Index
 		Report_state[i++] = DEVICELINK_REPORT_LENGTH >> 8;
 		Report_state[i++] = DEVICE_NUMBER;											//how many device is prepared to be used
@@ -110,11 +109,14 @@ void report_devLink_binary()
 	}
 	else if(reportNewTabFlag==1)
 	{
+        uint16_t devLinkState[2] = {0};
+        
 		i=0;
-		devLinkState[0] = 0;
+		
+        //devLinkState[0] = 0;
 		if(TIDMstInitDevState & (1<<BUZZERDEV))
 		{
-			devLinkState[0] |= BuzDev.dTod.dZERO;
+			devLinkState[0] = BuzDev.dTod.dZERO;
 			devLinkState[0] |= BuzDev.dTod.dONE<<1;
 			devLinkState[0] |= BuzDev.dTod.dTWO<<2;
 			devLinkState[0] |= BuzDev.dTod.dTHR<<3;
@@ -123,12 +125,18 @@ void report_devLink_binary()
 			devLinkState[0] |= BuzDev.dTod.dSIX<<6;
 			devLinkState[0] |= BuzDev.dTod.dSEV<<7;
 			devLinkState[0] |= BuzDev.dTod.dEIG<<8;
+			devLinkState[0] |= BuzDev.dTod.dNINE<<9;
+			devLinkState[0] |= BuzDev.dTod.dX<<10;
+			devLinkState[0] |= BuzDev.dTod.dXI<<11;
+			devLinkState[0] |= BuzDev.dTod.dXII<<12;
+			devLinkState[0] |= BuzDev.dTod.dXIII<<13;
+			devLinkState[0] |= BuzDev.dTod.dXIV<<14;
 		}
 		
-		devLinkState[1] = 0;
+		//devLinkState[1] = 0;
 		if(TIDMstInitDevState & (1<<LEDDEV))
 		{
-			devLinkState[1] |= LedDev.dTod.dZERO;
+			devLinkState[1] = LedDev.dTod.dZERO;
 			devLinkState[1] |= LedDev.dTod.dONE<<1;
 			devLinkState[1] |= LedDev.dTod.dTWO<<2;
 			devLinkState[1] |= LedDev.dTod.dTHR<<3;
@@ -137,6 +145,12 @@ void report_devLink_binary()
 			devLinkState[1] |= LedDev.dTod.dSIX<<6;
 			devLinkState[1] |= LedDev.dTod.dSEV<<7;
 			devLinkState[1] |= LedDev.dTod.dEIG<<8;
+			devLinkState[1] |= LedDev.dTod.dNINE<<9;
+			devLinkState[1] |= LedDev.dTod.dX<<10;
+			devLinkState[1] |= LedDev.dTod.dXI<<11;
+			devLinkState[1] |= LedDev.dTod.dXII<<12;
+			devLinkState[1] |= LedDev.dTod.dXIII<<13;
+			devLinkState[1] |= LedDev.dTod.dXIV<<14;
 		}
 		
 		Report_state[i++] = DEVICELINK_DATA_LENGTH;
@@ -210,8 +224,8 @@ void report_binary(TID_Device devName)
 	/* Report device descript */
 	if(reportNewTabFlag==0)
 	{
-		Report_state[0] = 1;
-		Report_state[1] = 1;
+		Report_state[0] = 85;
+		Report_state[1] = 85;
 		Report_state[2] = devName.DevDesc.DevDesc_leng;
 		Report_state[3] = devName.DevDesc.DevDesc_leng>>8;
 		Report_state[4] = devName.DevDesc.RptDesc_leng;
@@ -776,7 +790,7 @@ void getPara_output_binary(TID_Device* devPointer, uint8_t devNum)
 	}
 }
 // ======================================
-// 				set connect to other device
+// 		set connect to other device
 // ======================================
 void getConData_binary(uint8_t* Para1)
 {
@@ -823,6 +837,26 @@ void getConData_binary(uint8_t* Para1)
 	else if (para == '9')
 	{
 		*(Para1+9) = GetUARTValue_Binary();			
+	}
+	else if (para == 'a')
+	{
+		*(Para1+10) = GetUARTValue_Binary();			
+	}
+	else if (para == 'b')
+	{
+		*(Para1+11) = GetUARTValue_Binary();			
+	}
+	else if (para == 'c')
+	{
+		*(Para1+12) = GetUARTValue_Binary();			
+	}
+	else if (para == 'd')
+	{
+		*(Para1+13) = GetUARTValue_Binary();			
+	}
+	else if (para == 'e')
+	{
+		*(Para1+14) = GetUARTValue_Binary();			
 	}
 }
 
@@ -1017,6 +1051,132 @@ void SetPara_Binary()
 			else if(type=='4')			//Connect device
 			{			
 				getConData_binary(&KeyDev.dTod.dZERO);
+			}
+		}
+		/* RESERVED DEVICE 9 */
+		else if(device=='A')
+		{
+			type = GetChar();
+			if(type == '1')					//Feature
+			{
+				getPara_feature_binary(&ResDev9, RESDEV9);
+			}
+			else if(type=='2')			//Input
+			{
+				getPara_input_binary(&ResDev9, RESDEV9);
+			}
+			else if(type=='3')			//Output
+			{
+				getPara_output_binary(&ResDev9, RESDEV9);
+			}
+			else if(type=='4')			//Connect device
+			{			
+				getConData_binary(&ResDev9.dTod.dZERO);
+			}
+		}
+		/* RESERVED DEVICE 10 */
+		else if(device=='B')
+		{
+			type = GetChar();
+			if(type == '1')					//Feature
+			{
+				getPara_feature_binary(&ResDev10, RESDEV10);
+			}
+			else if(type=='2')			//Input
+			{
+				getPara_input_binary(&ResDev10, RESDEV10);
+			}
+			else if(type=='3')			//Output
+			{
+				getPara_output_binary(&ResDev10, RESDEV10);
+			}
+			else if(type=='4')			//Connect device
+			{			
+				getConData_binary(&ResDev10.dTod.dZERO);
+			}
+		}
+		/* RESERVED DEVICE 11 */
+		else if(device=='C')
+		{
+			type = GetChar();
+			if(type == '1')					//Feature
+			{
+				getPara_feature_binary(&ResDev11, RESDEV11);
+			}
+			else if(type=='2')			//Input
+			{
+				getPara_input_binary(&ResDev11, RESDEV11);
+			}
+			else if(type=='3')			//Output
+			{
+				getPara_output_binary(&ResDev11, RESDEV11);
+			}
+			else if(type=='4')			//Connect device
+			{			
+				getConData_binary(&ResDev11.dTod.dZERO);
+			}
+		}
+		/* RESERVED DEVICE 12 */
+		else if(device=='D')
+		{
+			type = GetChar();
+			if(type == '1')					//Feature
+			{
+				getPara_feature_binary(&ResDev12, RESDEV12);
+			}
+			else if(type=='2')			//Input
+			{
+				getPara_input_binary(&ResDev12, RESDEV12);
+			}
+			else if(type=='3')			//Output
+			{
+				getPara_output_binary(&ResDev12, RESDEV12);
+			}
+			else if(type=='4')			//Connect device
+			{			
+				getConData_binary(&ResDev12.dTod.dZERO);
+			}
+		}
+		/* RESERVED DEVICE 13 */
+		else if(device=='E')
+		{
+			type = GetChar();
+			if(type == '1')					//Feature
+			{
+				getPara_feature_binary(&ResDev13, RESDEV13);
+			}
+			else if(type=='2')			//Input
+			{
+				getPara_input_binary(&ResDev13, RESDEV13);
+			}
+			else if(type=='3')			//Output
+			{
+				getPara_output_binary(&ResDev13, RESDEV13);
+			}
+			else if(type=='4')			//Connect device
+			{			
+				getConData_binary(&ResDev13.dTod.dZERO);
+			}
+		}
+		/* RESERVED DEVICE 14 */
+		else if(device=='F')
+		{
+			type = GetChar();
+			if(type == '1')					//Feature
+			{
+				getPara_feature_binary(&ResDev14, RESDEV14);
+			}
+			else if(type=='2')			//Input
+			{
+				getPara_input_binary(&ResDev14, RESDEV14);
+			}
+			else if(type=='3')			//Output
+			{
+				getPara_output_binary(&ResDev14, RESDEV14);
+			}
+			else if(type=='4')			//Connect device
+			{			
+				getConData_binary(&ResDev14.dTod.dZERO);
 			}
 		}
 }

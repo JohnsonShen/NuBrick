@@ -84,6 +84,12 @@ void key_init()
 	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC5MFP_GPIO;
     GPIO_SetMode(PC, BIT5, GPIO_MODE_QUASI);
     GPIO_EnableInt(PC, 5, GPIO_INT_BOTH_EDGE);
+	
+    /* Configure PC.6 as Quasi-bidirection mode and enable interrupt by falling edge trigger */
+	SYS->GPC_MFPL &= ~SYS_GPC_MFPL_PC6MFP_Msk;
+	SYS->GPC_MFPL |= SYS_GPC_MFPL_PC6MFP_GPIO;
+    GPIO_SetMode(PC, BIT6, GPIO_MODE_QUASI);
+    GPIO_EnableInt(PC, 6, GPIO_INT_BOTH_EDGE);
     NVIC_EnableIRQ(GPC_IRQn);
 
     /* Configure PE.0 as Quasi-bidirection mode and enable interrupt by falling edge trigger */
@@ -93,6 +99,12 @@ void key_init()
     GPIO_SetMode(PE, BIT0, GPIO_MODE_QUASI);
     GPIO_EnableInt(PE, 0, GPIO_INT_BOTH_EDGE);
     NVIC_EnableIRQ(GPE_IRQn);
+	
+	//LED
+	SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk);
+	SYS->GPA_MFPL |= SYS_GPA_MFPL_PA2MFP_GPIO;
+	GPIO_SetMode(PA,BIT2,GPIO_MODE_OUTPUT);
+	PA2 = 1;
 
     /* Enable interrupt de-bounce function and select de-bounce sampling cycle time is 1024 clocks of LIRC clock */
     GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_LIRC, GPIO_DBCTL_DBCLKSEL_1024);

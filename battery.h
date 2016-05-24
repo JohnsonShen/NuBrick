@@ -25,6 +25,8 @@ void Battery_Init(void);
 void GetBattery(void);
 void PowerControl(void);
 
+void MasterControl(void);
+
 extern uint16_t  BatteryData;
 
 #endif /* BATTERY_H_ */

@@ -25,10 +25,11 @@
 #include "music.h"
 
 void Led_Init(void);
-void Led_Alerm(uint16_t, uint16_t, uint8_t);
+void Led_Alerm(uint16_t, uint16_t, uint8_t, uint8_t, uint8_t);
 void Led_Stop(void);
 void Led_Blink_Start(void);
 void Led_Blink_Check(void);
+void Led_Control(void);
 
 extern uint8_t LedExecuteFlag;
 extern uint8_t LedMusicExecuteFlag;
