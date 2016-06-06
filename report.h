@@ -47,8 +47,8 @@
 #define REPORT_INPUT  						2
 #define REPORT_OUTPUT							3
 
-#define REPORT_FORMAT_TEXT        0 
-#define REPORT_FORMAT_BINARY      1 
+#define REPORT_FORMAT_TEXT        0
+#define REPORT_FORMAT_BINARY      1
 
 #define STREAM_START              1
 #define STREAM_PAUSE              0

@@ -46,7 +46,7 @@
 #endif
 #else
 #define STACK_ACC 0
-#define ACC_ORIENTATION(X, Y, Z) 
+#define ACC_ORIENTATION(X, Y, Z)
 #define GYRO_ORIENTATION(X, Y, Z)
 #endif
 
@@ -76,7 +76,7 @@
 #define I2C_AHRS_PORT I2C0
 #endif
 #ifdef I2C_MS_PORT0					//for I2C master & slave communicate
-#define I2C_MS_PORT I2C0					
+#define I2C_MS_PORT I2C0
 #else
 #define I2C_MS_PORT I2C1
 #endif

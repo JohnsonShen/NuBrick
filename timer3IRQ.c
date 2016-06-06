@@ -51,17 +51,17 @@ void IR_TranDATA(void)
 			TIMER_EnableInt(TIMER3);
 			TIMER_Start(TIMER3);
 		}
-		if(IR_TX_Bitn<7)	
+		if(IR_TX_Bitn<7)
 		{
 			IR_TX_Bitn++;
 		}
-		else 
+		else
 		{
 			IR_TX_Bitn=0;
 			IR_TX_Byten++;
 		}
-	IR_bit_state=0;
-	}	
+		IR_bit_state=0;
+	}
 }
 
 /*---------------------------------------------------------------------------------------------------------*/

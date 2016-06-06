@@ -59,17 +59,20 @@ void SensorInitACC()
 {
 	float Cal[ACC_CAL_DATA_SIZE];
 	bool FlashValid;
-	
-	if(!SensorInitState.ACC_Done) {
+
+	if(!SensorInitState.ACC_Done)
+	{
 #ifdef MPU6050
 		SensorInitState.ACC_Done = MPU6050_initialize();
 		SensorInitState.GYRO_Done = SensorInitState.ACC_Done;
 #endif
 	}
-	if(SensorInitState.ACC_Done) {
+	if(SensorInitState.ACC_Done)
+	{
 		printf("ACC connect      - [OK]\n");
 		FlashValid = GetFlashCal(SENSOR_ACC, Cal);
-		if(FlashValid) {
+		if(FlashValid)
+		{
 			CalFlashState.ACC_FLASH = true;
 			AccOffset[0] = Cal[0];
 			AccOffset[1] = Cal[1];
@@ -78,9 +81,10 @@ void SensorInitACC()
 			AccScale[1]  = Cal[4];
 			AccScale[2]  = Cal[5];
 			printf("ACC calibration  - [FLASH]\n");
-			
+
 		}
-		else {
+		else
+		{
 			AccOffset[0] = ACC_OFFSET_X;//0;
 			AccOffset[1] = ACC_OFFSET_Y;//0;
 			AccOffset[2] = ACC_OFFSET_Z;//0;
@@ -89,12 +93,12 @@ void SensorInitACC()
 			AccScale[2] = ACC_SCALE_Z;//IMU_G_PER_LSB_CFG;
 			printf("ACC calibration  - [DEF]\n");
 		}
-	//printf("Offset: %f  %f  %f\n", AccOffset[0], AccOffset[1], AccOffset[2]);
-	//printf("Scale: %f  %f  %f\n", AccScale[0], AccScale[1], AccScale[2]);
-	nvtSetAccScale(AccScale);
-	nvtSetAccOffset(AccOffset);
-	nvtSetAccG_PER_LSB(IMU_G_PER_LSB_CFG);
-}
+		//printf("Offset: %f  %f  %f\n", AccOffset[0], AccOffset[1], AccOffset[2]);
+		//printf("Scale: %f  %f  %f\n", AccScale[0], AccScale[1], AccScale[2]);
+		nvtSetAccScale(AccScale);
+		nvtSetAccOffset(AccOffset);
+		nvtSetAccG_PER_LSB(IMU_G_PER_LSB_CFG);
+	}
 	else
 		printf("ACC connect      - [FAIL]\n");
 }
@@ -102,18 +106,21 @@ void SensorInitGYRO()
 {
 	float Cal[GYRO_CAL_DATA_SIZE];
 	bool FlashValid;
-	if(!SensorInitState.GYRO_Done) {
+	if(!SensorInitState.GYRO_Done)
+	{
 #ifdef MPU6050
 		SensorInitState.GYRO_Done = MPU6050_initialize();
 		SensorInitState.ACC_Done = SensorInitState.GYRO_Done;
 #endif
 	}
 
-	if(SensorInitState.GYRO_Done) {
+	if(SensorInitState.GYRO_Done)
+	{
 		printf("GYRO connect     - [OK]\n");
 		FlashValid = GetFlashCal(SENSOR_GYRO, Cal);
-		
-		if(FlashValid) {
+
+		if(FlashValid)
+		{
 			CalFlashState.GYRO_FLASH = true;
 			GyroOffset[0] = Cal[0];
 			GyroOffset[1] = Cal[1];
@@ -122,9 +129,10 @@ void SensorInitGYRO()
 			GyroScale[1]  = Cal[4]*IMU_DEG_PER_LSB_CFG;
 			GyroScale[2]  = Cal[5]*IMU_DEG_PER_LSB_CFG;
 			printf("GYRO calibration - [FLASH]\n");
-			
+
 		}
-		else {
+		else
+		{
 			GyroOffset[0] = 0;
 			GyroOffset[1] = 0;
 			GyroOffset[2] = 0;
@@ -147,8 +155,9 @@ void SensorInitMAG()
 	float Cal[MAG_CAL_DATA_SIZE + QUALITY_FACTOR_SIZE],magCal[3];
 	bool FlashValid;
 	int i;
-	
-	if(!SensorInitState.MAG_Done) {
+
+	if(!SensorInitState.MAG_Done)
+	{
 #ifdef HMC5883
 		SensorInitState.MAG_Done = hmc5883lInit();
 		hmc5883lSelfTest();
@@ -158,30 +167,33 @@ void SensorInitMAG()
 		SensorInitState.MAG_Done = AK8975_initialize();
 #endif
 	}
-	
-	if(SensorInitState.MAG_Done) {
-		if (report_format == REPORT_FORMAT_TEXT) 
-		printf("MAG connect      - [OK]\n");
+
+	if(SensorInitState.MAG_Done)
+	{
+		if (report_format == REPORT_FORMAT_TEXT)
+			printf("MAG connect      - [OK]\n");
 		FlashValid = GetFlashCal(SENSOR_MAG, Cal);
-		
-		if(FlashValid) {
+
+		if(FlashValid)
+		{
 			CalFlashState.MAG_FLASH = true;
-			for(i=0;i<MAG_CAL_DATA_SIZE;i++)
+			for(i=0; i<MAG_CAL_DATA_SIZE; i++)
 				MagCalMatrix[i] = Cal[i];
 			CalFlashState.MAG_QFACTOR = Cal[i];
-			if (report_format == REPORT_FORMAT_TEXT) 
-			printf("MAG calibration from - [FLASH], Q:%d\n",CalFlashState.MAG_QFACTOR);
+			if (report_format == REPORT_FORMAT_TEXT)
+				printf("MAG calibration from - [FLASH], Q:%d\n",CalFlashState.MAG_QFACTOR);
 		}
-		else {
-			for(i=0;i<MAG_CAL_DATA_SIZE;i++)
+		else
+		{
+			for(i=0; i<MAG_CAL_DATA_SIZE; i++)
 				MagCalMatrix[i] = 0;
-			
+
 			MagCalMatrix[3] = magCal[0];//MAG_GAUSS_PER_LSB;
 			MagCalMatrix[4] = magCal[1];//MAG_GAUSS_PER_LSB;
 			MagCalMatrix[5] = magCal[2];//MAG_GAUSS_PER_LSB;
-			
-			if (report_format == REPORT_FORMAT_TEXT) 
-			printf("MAG calibration from - [DEFAULT], Q:%d\n",CalFlashState.MAG_QFACTOR);
+
+			if (report_format == REPORT_FORMAT_TEXT)
+				printf("MAG calibration from - [DEFAULT], Q:%d\n",CalFlashState.MAG_QFACTOR);
 		}
 		/*printf("M[0][1][2]: %f %f %f\n", MagCalMatrix[0], MagCalMatrix[1], MagCalMatrix[2]);
 		printf("M[3][4][5]: %f %f %f\n", MagCalMatrix[3], MagCalMatrix[4], MagCalMatrix[5]);
@@ -246,19 +258,23 @@ void SensorReadMAG()
 void SensorsRead(char SensorType, char interval)
 {
 #if STACK_ACC
-	if(SensorType&SENSOR_ACC&&SensorInitState.ACC_Done) {
+	if(SensorType&SENSOR_ACC&&SensorInitState.ACC_Done)
+	{
 		SensorReadACC();
 		nvtInputSensorRawACC(&Sensor.rawACC[0]);
 	}
 #endif
 #if STACK_MAG
-	if(SensorType&SENSOR_MAG&&SensorInitState.MAG_Done) {
-		if((GetFrameCount()%interval)==0) {
+	if(SensorType&SENSOR_MAG&&SensorInitState.MAG_Done)
+	{
+		if((GetFrameCount()%interval)==0)
+		{
 			SensorReadMAG();
 			nvtInputSensorRawMAG(&Sensor.rawMAG[0]);
 		}
 	}
-	else {
+	else
+	{
 		Sensor.rawMAG[0] = 0;
 		Sensor.rawMAG[1] = 0;
 		Sensor.rawMAG[2] = 0;
@@ -266,7 +282,8 @@ void SensorsRead(char SensorType, char interval)
 	}
 #endif
 #if STACK_GYRO
-	if(SensorType&SENSOR_GYRO&&SensorInitState.GYRO_Done) {
+	if(SensorType&SENSOR_GYRO&&SensorInitState.GYRO_Done)
+	{
 		SensorReadGYRO();
 		nvtInputSensorRawGYRO(&Sensor.rawGYRO[0]);
 	}
@@ -276,18 +293,22 @@ void SensorsRead(char SensorType, char interval)
 void SensorsDynamicCalibrate(char SensorType)
 {
 #if STACK_ACC
-	if(SensorType&SENSOR_ACC&&SensorInitState.ACC_Done) {
+	if(SensorType&SENSOR_ACC&&SensorInitState.ACC_Done)
+	{
 		/* TBD */
 	}
 #endif
 #if STACK_GYRO
-	if(SensorType&SENSOR_GYRO&&SensorInitState.GYRO_Done) {
-		if(!SensorCalState.GYRO_Done) {
+	if(SensorType&SENSOR_GYRO&&SensorInitState.GYRO_Done)
+	{
+		if(!SensorCalState.GYRO_Done)
+		{
 			if(nvtGyroCenterCalibrate()!=STATUS_GYRO_CAL_DONE)	{}
-				//led_arm_state(LED_STATE_TOGGLE);
-			else {
+			//led_arm_state(LED_STATE_TOGGLE);
+			else
+			{
 				float GyroMean[3];
-				
+
 				SensorCalState.GYRO_Done = true;
 				//led_arm_state(LED_STATE_OFF);
 				nvtGetGyroOffset(GyroMean);
@@ -296,14 +317,17 @@ void SensorsDynamicCalibrate(char SensorType)
 	}
 #endif
 #if STACK_MAG
-	if(SensorType&SENSOR_MAG&&SensorInitState.MAG_Done) {
-		if(!SensorCalState.MAG_Done) {
+	if(SensorType&SENSOR_MAG&&SensorInitState.MAG_Done)
+	{
+		if(!SensorCalState.MAG_Done)
+		{
 			static float rpy[3],lastY,diff;
 			nvtGetEulerRPY(rpy);
 			diff = fabsf(rpy[2] - lastY);
 			if((diff>0.01f)||(diff==0)) {}
-				//led_mag_state(LED_STATE_TOGGLE);
-			else {
+			//led_mag_state(LED_STATE_TOGGLE);
+			else
+			{
 				//led_arm_state(LED_STATE_OFF);
 				SensorCalState.MAG_Done = true;
 			}
@@ -316,7 +340,7 @@ void SensorsDynamicCalibrate(char SensorType)
 char GetSensorInitState()
 {
 	char InitState = 0;
-	
+
 	InitState = (((SensorInitState.ACC_Done<<ACC))|((SensorInitState.GYRO_Done<<GYRO))|((SensorInitState.MAG_Done<<MAG)));
 	return InitState;
 }

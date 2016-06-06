@@ -13,10 +13,10 @@
  * HCHSIEH@nuvoton.com                                         *
  *=============================================================*
  */
- 
+
 #ifndef TID_H_
 #define TID_H_
- 
+
 #include <stdio.h>
 #include "M451Series.h"
 #include "devCheck.h"
@@ -61,7 +61,7 @@
 #define TID_REG_EIG 89
 #define TID_REG_NINE 101
 #define TID_REG_TEN 113
- 
+
 //==============================================================
 //==============================================================
 //											Device descriptor
@@ -69,7 +69,7 @@
 //==============================================================
 typedef struct
 {
-	uint16_t DevDesc_leng;				//Report descriptor length	
+	uint16_t DevDesc_leng;				//Report descriptor length
 	uint16_t RptDesc_leng;				//Report descriptor length
 	uint16_t InRptLeng;					//input report length
 	uint16_t OutRptLeng;					//output report length
@@ -164,10 +164,10 @@ typedef PFN_FUNC_T APFN_FUNC_T[4];
 
 typedef struct
 {
-    PFN_FUNC_T  pfnSetup;           // function to configure GPIO and initial sensor
-    PFN_FUNC_T  pfnPeriod;          // function to process sensor data and flow control once per 0.1 seconds
-    PFN_FUNC_T  pfnPulling;         // function to process sensor data and flow control frequently
-    PFN_FUNC_T  pfnReport;          // function to report data
+	PFN_FUNC_T  pfnSetup;           // function to configure GPIO and initial sensor
+	PFN_FUNC_T  pfnPeriod;          // function to process sensor data and flow control once per 0.1 seconds
+	PFN_FUNC_T  pfnPulling;         // function to process sensor data and flow control frequently
+	PFN_FUNC_T  pfnReport;          // function to report data
 } DEVICE_FUNC_T;
 
 // ************************************************************
@@ -180,7 +180,7 @@ typedef struct
 	TID_INPUT Input;
 	TID_OUTPUT Output;
 	DEVICE_TO_DEVICE dTod;
-    DEVICE_FUNC_T   func;
+	DEVICE_FUNC_T   func;
 } TID_Device;
 
 typedef TID_Device *PTID_Device_T;

@@ -21,19 +21,19 @@
 // ============================================================
 uint16_t IrSonar_CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
 {
-    uint16_t u16RisingTime, u16FallingTime, u16Period;
+	uint16_t u16RisingTime, u16FallingTime, u16Period;
 
-		u16RisingTime = PWM_GET_CAPTURE_RISING_DATA(PWM, u32Ch);
-	
-		u16FallingTime = PWM_GET_CAPTURE_FALLING_DATA(PWM, u32Ch);
-	
-		u16Period = u16RisingTime - u16FallingTime;
-	
-		//printf("\nCapture Result: Rising Time = %d, Falling Time = %d \nHigh Period = %d",
-           //u16RisingTime, u16FallingTime, u16Period);
-	
-		return u16Period;
-		
+	u16RisingTime = PWM_GET_CAPTURE_RISING_DATA(PWM, u32Ch);
+
+	u16FallingTime = PWM_GET_CAPTURE_FALLING_DATA(PWM, u32Ch);
+
+	u16Period = u16RisingTime - u16FallingTime;
+
+	//printf("\nCapture Result: Rising Time = %d, Falling Time = %d \nHigh Period = %d",
+	//u16RisingTime, u16FallingTime, u16Period);
+
+	return u16Period;
+
 }
 
 // **************************************************************
@@ -52,7 +52,7 @@ void PWM0P2_IRQHandler(void)
 		{
 			//Clear interrupt
 			PWM_ClearCaptureIntFlag(PWM0, 4, PWM_CAPTURE_INT_FALLING_LATCH);
-		
+
 			Sonar_caprure_timer = IrSonar_CalPeriodTime(PWM0, 4);
 			// Caculate distance between Sonar and object
 			Sonar_Distance = (float)Sonar_caprure_timer/(float)SONARDISTANCE_SCALE;
@@ -73,7 +73,7 @@ void PWM0P2_IRQHandler(void)
 
 			IR_caprure_timer_falling = 0xFFFF - PWM_GET_CAPTURE_RISING_DATA(PWM0, 5);
 			IR_caprure_timer_rising = PWM_GET_CAPTURE_RISING_DATA(PWM0, 5) - PWM_GET_CAPTURE_FALLING_DATA(PWM0, 5);			//rising time = rising counter - falling counter
-		
+
 			//start receive IR raw data
 			if(IR_RxExecute_Flag==0)
 			{

@@ -16,15 +16,21 @@
 
 #include "music.h"
 
-uint16_t MusicScale[32] = {							//buzzer song scale
+uint16_t MusicScale[32] =  							//buzzer song scale
+{
 	G4, E4,	E4, E4,	F4, D4, D4, D4, C4, D4, E4, F4, G4, G4, G4, G4,
-	G4, E4,	E4, E4, F4, D4, D4, D4, C4, E6, G4, G4, C4, C4, C4, C4};
+	G4, E4,	E4, E4, F4, D4, D4, D4, C4, E6, G4, G4, C4, C4, C4, C4
+};
 
-uint16_t MusicTime[32] = {							//buzzer song scale Time
+uint16_t MusicTime[32] =  							//buzzer song scale Time
+{
 	250, 250, 250, 250,	250, 250, 250, 250,	250, 250, 250, 250, 250, 250, 250, 250,
-	250, 250, 250, 250,	250, 250, 250, 250,	250, 250, 250, 250, 250, 250, 250, 250};
+	250, 250, 250, 250,	250, 250, 250, 250,	250, 250, 250, 250, 250, 250, 250, 250
+};
 
-uint8_t MusicLevel[32] = {								//buzzer song scale Level
+uint8_t MusicLevel[32] =  								//buzzer song scale Level
+{
 	20, 20, 20,  0,	20, 20, 20,  0,	20, 20, 20, 20, 20, 20, 20, 0,
-	20, 20, 20,  0,	20, 20, 20,  0,	20, 20, 20, 20, 20, 20, 20, 0};
+	20, 20, 20,  0,	20, 20, 20,  0,	20, 20, 20, 20, 20, 20, 20, 0
+};
 

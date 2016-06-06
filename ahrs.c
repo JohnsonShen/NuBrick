@@ -12,7 +12,7 @@
  * tlshen@nuvoton.com/tzulan611126@gmail.com                   *
  * HSHSIEH@nuvoton.com                                         *
  *=============================================================*
- */ 
+ */
 
 #include "i2cdev.h"
 #include "sensors.h"
@@ -33,15 +33,15 @@ void AhrsParaInit()
 
 	AHRSDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
 	AHRSDev.DevDesc.RptDesc_leng = 34;						//Report descriptor
-	AHRSDev.DevDesc.InRptLeng = 5;								//Input report
-	AHRSDev.DevDesc.OutRptLeng = 0;								//Output report
-	AHRSDev.DevDesc.GetFeatLeng = 5;							//Get feature
-	AHRSDev.DevDesc.SetFeatLeng = 5;							//Set feature
-	AHRSDev.DevDesc.CID = 0;											//manufacturers ID
-	AHRSDev.DevDesc.DID = 0;											//Product ID
-	AHRSDev.DevDesc.PID = 0;											//Device firmware revision
-	AHRSDev.DevDesc.UID = 0;											//Device Class type
-	AHRSDev.DevDesc.UCID = 0;											//reserve
+	AHRSDev.DevDesc.InRptLeng = 5;							//Input report
+	AHRSDev.DevDesc.OutRptLeng = 0;							//Output report
+	AHRSDev.DevDesc.GetFeatLeng = 5;						//Get feature
+	AHRSDev.DevDesc.SetFeatLeng = 5;						//Set feature
+	AHRSDev.DevDesc.CID = 0;								//manufacturers ID
+	AHRSDev.DevDesc.DID = 0;								//Product ID
+	AHRSDev.DevDesc.PID = 0;								//Device firmware revision
+	AHRSDev.DevDesc.UID = 0;								//Device Class type
+	AHRSDev.DevDesc.UCID = 0;								//reserve
 	/* Feature */
 	AHRSDev.Feature.data1.minimum = 0;						//Sleep period
 	AHRSDev.Feature.data1.maximum = 1024;
@@ -55,10 +55,10 @@ void AhrsParaInit()
 	AHRSDev.Feature.datalen[1] = 1;
 	AHRSDev.Feature.dataNum = 2;
 	/* Input */
-	AHRSDev.Input.data1.minimum = 0;					//Vibration sensor
+	AHRSDev.Input.data1.minimum = 0;						//Vibration sensor
 	AHRSDev.Input.data1.maximum = 720;
 	AHRSDev.Input.data1.value = 0;
-	AHRSDev.Input.data2.minimum = 0;					//Over flag
+	AHRSDev.Input.data2.minimum = 0;						//Over flag
 	AHRSDev.Input.data2.maximum = 1;
 	AHRSDev.Input.data2.value = 0;
 	AHRSDev.Input.arg[0] = 1;
@@ -72,7 +72,7 @@ void AhrsParaInit()
 
 // ===========================================================
 //
-//	Function:Read ahrs value and compare 
+//	Function:Read ahrs value and compare
 //
 // ===========================================================
 void AhrsRead(uint8_t GYRO_Sentivity, uint16_t VibrationAlermTime, uint8_t VibrationClearFlag)
@@ -81,8 +81,8 @@ void AhrsRead(uint8_t GYRO_Sentivity, uint16_t VibrationAlermTime, uint8_t Vibra
 	GyroValue=0;
 	// Get x,y,z velocity
 	//nvtGetEulerRPY(Euler);
-	//nvtGetAccZWithoutGravity(&Ve[0],&Ve[1]);	
-	//nvtGetVelocity(Ve);		
+	//nvtGetAccZWithoutGravity(&Ve[0],&Ve[1]);
+	//nvtGetVelocity(Ve);
 	//nvtGetMove(Move);
 	//nvtGetCalibratedACC(Ve);
 	// Get x,y,z Angeler velocity
@@ -90,7 +90,7 @@ void AhrsRead(uint8_t GYRO_Sentivity, uint16_t VibrationAlermTime, uint8_t Vibra
 	nvtGetAccZWithoutGravity(&Gyro[0], &Gyro[1]);
 	/* Update TID value */
 	GyroValue = 0;
-	for(i=0;i<3;i++)
+	for(i=0; i<3; i++)
 	{
 		if(GyroValue<Gyro[i])
 			GyroValue=Gyro[i];
@@ -110,7 +110,7 @@ void AhrsRead(uint8_t GYRO_Sentivity, uint16_t VibrationAlermTime, uint8_t Vibra
 		PA2 = 1;
 		AHRSDev.Input.data2.value = 0;
 	}
-	
+
 	/* reset alerm flag after 10s */
 //	if(AHRSDev.Input.data2.value == 1)
 //	{
@@ -119,20 +119,20 @@ void AhrsRead(uint8_t GYRO_Sentivity, uint16_t VibrationAlermTime, uint8_t Vibra
 //		if(VibrationClearFlag == 1)
 //			AHRSDev.Input.data2.value = 0;
 //	}
-	
+
 }
 
 void AHRS_Init(void)
-{    
-    I2C_Init();
-    nvtAHRSInit();
-    SensorsInit();
-    AhrsParaInit();
+{
+	I2C_Init();
+	nvtAHRSInit();
+	SensorsInit();
+	AhrsParaInit();
 }
 
 void AHRS_Control(void)
 {
-    SensorsRead(SENSOR_ACC|SENSOR_GYRO,1);
-    nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
-    AhrsRead(AHRSDev.Feature.data2.value, AHRSDev.Feature.data3.value, AHRSDev.Output.data1.value);				//(Vibration Level, alerm time, clear flag)
+	SensorsRead(SENSOR_ACC|SENSOR_GYRO,1);
+	nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
+	AhrsRead(AHRSDev.Feature.data2.value, AHRSDev.Feature.data3.value, AHRSDev.Output.data1.value);				//(Vibration Level, alerm time, clear flag)
 }

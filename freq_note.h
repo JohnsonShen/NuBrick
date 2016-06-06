@@ -1,10 +1,10 @@
 #define  NULL 0    // null    =       0Hz	
 #define  C0   16   // C0      =   16.35Hz
 #define  C0u  17   // C0#/D0b =   17.32Hz
-#define  D0b  17   
+#define  D0b  17
 #define  D0   18   // D0      =   18.35Hz
 #define  D0u  19   // D0#/E0b =   19.45Hz
-#define  E0b  19   
+#define  E0b  19
 #define  E0   21   // E0      =   20.60Hz
 #define  F0   22   // F0      =   21.83Hz
 #define  F0u  23   // F0#/G0b =   23.12Hz

@@ -19,22 +19,22 @@
 /*----------------------------------------------------------------------------------------*/
 /* Define global variables and constants                                                  */
 /*----------------------------------------------------------------------------------------*/
-uint16_t  GasData;
-int32_t 	GasOverTimeCounter;			//Sonar alerm time
+uint16_t	GasData;
+int32_t		GasOverTimeCounter;			//Sonar alerm time
 
 // ---------------------------------------------------------------------------------------
 //  Gas ADC initialize setting
 //	Set PB2 as ADC converter
-//  Select APB0/8 as ADC module clock source  
-// --------------------------------------------------------------------------------------- 
+//  Select APB0/8 as ADC module clock source
+// ---------------------------------------------------------------------------------------
 void Gas_Init()
 {
 	SYS_UnlockReg();
 	/* Enable EADC module clock */
-	CLK_EnableModuleClock(EADC_MODULE);	
+	CLK_EnableModuleClock(EADC_MODULE);
 	/* EADC clock source is 72MHz, set divider to 8, ADC clock is 72/8 MHz */
 	CLK_SetModuleClock(EADC_MODULE, 0, CLK_CLKDIV0_EADC(8));
-	SYS_LockReg();	
+	SYS_LockReg();
 	/* Configure the GPB0 - GPB3 ADC analog input pins.  */
 	SYS->GPB_MFPL &= ~SYS_GPB_MFPL_PB1MFP_Msk;
 	SYS->GPB_MFPL |= SYS_GPB_MFPL_PB1MFP_EADC_CH1;
@@ -49,14 +49,14 @@ void Gas_Init()
 	SYS->GPA_MFPL |= SYS_GPA_MFPL_PA2MFP_GPIO;
 	GPIO_SetMode(PA,BIT2,GPIO_MODE_OUTPUT);
 	PA2 = 1;
-	
+
 	/* Set the ADC internal sampling time, input mode as single-end and enable the A/D converter */
 	EADC_Open(EADC, EADC_CTL_DIFFEN_SINGLE_END);
 	EADC_SetInternalSampleTime(EADC, 6);
 
 	/* Configure the sample module 0 for analog input channel 1 and software trigger source.*/
 	EADC_ConfigSampleModule(EADC, 1, EADC_SOFTWARE_TRIGGER, 1);
-	
+
 	/* Clear the A/D ADINT0 interrupt flag for safe */
 	EADC_CLR_INT_FLAG(EADC, 0x2);
 
@@ -66,15 +66,15 @@ void Gas_Init()
 
 	GasDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
 	GasDev.DevDesc.RptDesc_leng = 36;						//Report descriptor
-	GasDev.DevDesc.InRptLeng = 5;								//Input report
+	GasDev.DevDesc.InRptLeng = 5;							//Input report
 	GasDev.DevDesc.OutRptLeng = 0;							//Output report
 	GasDev.DevDesc.GetFeatLeng = 6;							//Get feature
 	GasDev.DevDesc.SetFeatLeng = 6;							//Set feature
-	GasDev.DevDesc.CID = 0;											//manufacturers ID
-	GasDev.DevDesc.DID = 0;											//Product ID
-	GasDev.DevDesc.PID = 0;											//Device firmware revision
-	GasDev.DevDesc.UID = 0;											//Device Class type
-	GasDev.DevDesc.UCID = 0;											//reserve
+	GasDev.DevDesc.CID = 0;									//manufacturers ID
+	GasDev.DevDesc.DID = 0;									//Product ID
+	GasDev.DevDesc.PID = 0;									//Device firmware revision
+	GasDev.DevDesc.UID = 0;									//Device Class type
+	GasDev.DevDesc.UCID = 0;								//reserve
 	/* Feature */
 	GasDev.Feature.data1.minimum = 0;						//Sleep period
 	GasDev.Feature.data1.maximum = 1024;
@@ -117,7 +117,7 @@ void GetGas()
 	//Wait ADC interrupt (g_u32AdcIntFlag will be set at IRQ_Handler function)
 	GasData = ((EADC_GET_CONV_DATA(EADC, 1))*100/4096);
 	//printf("GasData = %d\n",GasData);
-	
+
 	/* Update TID value */
 	GasDev.Input.data1.value = GasData;
 	if(GasDev.Input.data1.value < GasDev.Feature.data2.value)
@@ -131,6 +131,7 @@ void GetGas()
 		PA2 = 1;
 		GasDev.Input.data2.value = 0;
 	}
+	
 	/* reset alerm flag after 10s */
 //	if(GasDev.Input.data2.value == 1)
 //	{
@@ -139,4 +140,5 @@ void GetGas()
 //		if(GasDev.Output.data1.value == 1)
 //			GasDev.Input.data2.value = 0;
 //	}
+	
 }

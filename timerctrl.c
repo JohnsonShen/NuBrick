@@ -29,26 +29,30 @@ volatile uint32_t u32Timer0Cnt=0, u32Timer1Cnt=0, u32Timer2Cnt=0, u32Timer3Cnt=0
 
 void Delay(uint32_t delayCnt)
 {
-	while(delayCnt--) {
+	while(delayCnt--)
+	{
 		__NOP();
 		__NOP();
 	}
 }
-void DelayLoop(unsigned short delay){
+void DelayLoop(unsigned short delay)
+{
 	while(--delay);//About 200 psec per run
 }
-void DelayUsec(unsigned int usec){
+void DelayUsec(unsigned int usec)
+{
 	while(usec--)
 		DelayLoop(5);
 }
-void DelayMsec(unsigned short msec){
+void DelayMsec(unsigned short msec)
+{
 	int tick_count= getTickCount();
 	while((getTickCount()-tick_count)<msec);
 }
 void setup_system_tick(uint32_t sampleRate)
 {
 	uint32_t tickPeriod = SystemCoreClock/sampleRate;
-	
+
 	SysTick_Config(tickPeriod);
 	printf("SystemCoreClock:%d\n",SystemCoreClock);
 	printf("Tick Time: %d us\n",1000000/sampleRate);
@@ -76,14 +80,15 @@ uint32_t millis()
 
 void TMR2_IRQHandler(void)
 {
-	if(TIMER_GetIntFlag(TIMER2) == 1) {
+	if(TIMER_GetIntFlag(TIMER2) == 1)
+	{
 		/* Clear Timer2 time-out interrupt flag */
 		TIMER_ClearIntFlag(TIMER2);
 		u32Timer2Cnt+=10;
 	}
 }
 
-void TIMER_Enable(char enable) 
+void TIMER_Enable(char enable)
 {
 	if(enable)
 		TIMER_EnableInt(TIMER2);

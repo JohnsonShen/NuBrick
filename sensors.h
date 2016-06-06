@@ -17,23 +17,26 @@
 #define _SENSORS_H
 #include "def.h"
 
-typedef struct {
+typedef struct
+{
 	int16_t rawACC[3];
 	int16_t rawGYRO[3];
 	int16_t rawMAG[3];
-}Sensor_T;
+} Sensor_T;
 
-typedef struct {
+typedef struct
+{
 	bool ACC_Done;
 	bool GYRO_Done;
 	bool MAG_Done;
-}SensorInit_T;
-typedef struct {
+} SensorInit_T;
+typedef struct
+{
 	bool ACC_FLASH;
 	bool GYRO_FLASH;
 	bool MAG_FLASH;
 	uint8_t MAG_QFACTOR;
-}CAL_FLASH_STATE_T;
+} CAL_FLASH_STATE_T;
 #if STACK_ACC
 #define ACC_OFFSET_X          36
 #define ACC_OFFSET_Y          -322

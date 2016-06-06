@@ -13,7 +13,7 @@
  * HCHSIEH@nuvoton.com                                         *
  *=============================================================*
  */
- 
+
 #ifndef DEVCHECK_H_
 #define DEVCHECK_H_
 

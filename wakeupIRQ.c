@@ -20,17 +20,17 @@ void I2CWakeUpInit()
 {
 	/* Initialize I2C Slave Mode */
 	I2C_MS_Slave_Init();
-	
+
 	/* Unlock protected registers */
 	SYS_UnlockReg();
 
 	/* Enable power wake-up interrupt */
 	CLK->PWRCTL |= CLK_PWRCTL_PDWKIEN_Msk;
 	NVIC_EnableIRQ(PWRWU_IRQn);
-	
+
 	/* Enable I2C wake-up */
 	I2C_EnableWakeup(I2C_MS_PORT);
-	
+
 	/* Lock protected registers */
 	SYS_LockReg();
 
@@ -43,7 +43,7 @@ void I2CWakeUpInit()
 /*  Power Wake-up IRQ Handler                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 void PWRWU_IRQHandler(void)
-{	
+{
 	/* Check system power down mode wake-up interrupt flag */
 	if(((CLK->PWRCTL) & CLK_PWRCTL_PDWKIF_Msk) != 0)
 	{

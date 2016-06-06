@@ -13,9 +13,9 @@
  *                                                             *
  *=============================================================*
  */
- 
+
 #include "lr.h"
- 
+
 /*----------------------------------------------------------------------------------------*/
 /* Define global variables and constants                                                  */
 /*----------------------------------------------------------------------------------------*/
@@ -31,23 +31,23 @@ void Lr_Init()
 {
 	SYS_UnlockReg();
 	/* Enable EADC module clock */
-	CLK_EnableModuleClock(EADC_MODULE);	
+	CLK_EnableModuleClock(EADC_MODULE);
 	/* EADC clock source is 72MHz, set divider to 8, ADC clock is 72/8 MHz */
 	CLK_SetModuleClock(EADC_MODULE, 0, CLK_CLKDIV0_EADC(8));
-	SYS_LockReg();	
+	SYS_LockReg();
 	/* Configure the GPB0 - GPB3 ADC analog input pins.  */
 	SYS->GPB_MFPL &= ~SYS_GPB_MFPL_PB1MFP_Msk;
 	SYS->GPB_MFPL |= SYS_GPB_MFPL_PB1MFP_EADC_CH1;
-	
+
 	GPIO_DISABLE_DIGITAL_PATH(PB, BIT1);
-	
+
 	/* Set the ADC internal sampling time, input mode as single-end and enable the A/D converter */
 	EADC_Open(EADC, EADC_CTL_DIFFEN_SINGLE_END);
 	EADC_SetInternalSampleTime(EADC, 6);
 
 	/* Configure the sample module 0 for analog input channel 1 and software trigger source.*/
 	EADC_ConfigSampleModule(EADC, 1, EADC_SOFTWARE_TRIGGER, 1);
-	
+
 	/* Clear the A/D ADINT0 interrupt flag for safe */
 	EADC_CLR_INT_FLAG(EADC, 0x2);
 

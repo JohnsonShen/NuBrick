@@ -13,7 +13,7 @@
 * HCHEISH@nuvoton.com                                         *
 *=============================================================*
 */
- 
+
 #include "temp_HTU21D.h"
 
 float Humi_HTU21D;
@@ -24,18 +24,18 @@ uint32_t HTU21DWaitFlag;
 void HTU21D_Init(void)
 {
 	uint8_t tmp[1],temp[1];
-	
+
 	TempDev.DevDesc.DevDesc_leng = 26;						//Report descriptor
 	TempDev.DevDesc.RptDesc_leng = 58;						//Report descriptor
-	TempDev.DevDesc.InRptLeng = 8;								//Input report
-	TempDev.DevDesc.OutRptLeng = 0;								//Output report
-	TempDev.DevDesc.GetFeatLeng = 8;							//Get feature
-	TempDev.DevDesc.SetFeatLeng = 8;							//Set feature
-	TempDev.DevDesc.CID = 0;											//manufacturers ID
-	TempDev.DevDesc.DID = 0;											//Product ID
-	TempDev.DevDesc.PID = 0;											//Device firmware revision
-	TempDev.DevDesc.UID = 0;											//Device Class type
-	TempDev.DevDesc.UCID = 0;											//reserve
+	TempDev.DevDesc.InRptLeng = 8;							//Input report
+	TempDev.DevDesc.OutRptLeng = 0;							//Output report
+	TempDev.DevDesc.GetFeatLeng = 8;						//Get feature
+	TempDev.DevDesc.SetFeatLeng = 8;						//Set feature
+	TempDev.DevDesc.CID = 0;								//manufacturers ID
+	TempDev.DevDesc.DID = 0;								//Product ID
+	TempDev.DevDesc.PID = 0;								//Device firmware revision
+	TempDev.DevDesc.UID = 0;								//Device Class type
+	TempDev.DevDesc.UCID = 0;								//reserve
 	/* Feature */
 	TempDev.Feature.data1.minimum = 0;						//Sleep period
 	TempDev.Feature.data1.maximum = 1024;
@@ -54,16 +54,16 @@ void HTU21D_Init(void)
 	TempDev.Feature.datalen[2] = 2;
 	TempDev.Feature.dataNum = 3;
 	/* Input */
-	TempDev.Input.data1.minimum = 0;							//temperature value
+	TempDev.Input.data1.minimum = 0;						//temperature value
 	TempDev.Input.data1.maximum = 100;
 	TempDev.Input.data1.value = 25;
-	TempDev.Input.data2.minimum = 0;							//humidity value
+	TempDev.Input.data2.minimum = 0;						//humidity value
 	TempDev.Input.data2.maximum = 100;
 	TempDev.Input.data2.value = 50;
-	TempDev.Input.data3.minimum = 0;							//temperature over flag
+	TempDev.Input.data3.minimum = 0;						//temperature over flag
 	TempDev.Input.data3.maximum = 1;
 	TempDev.Input.data3.value = 0;
-	TempDev.Input.data4.minimum = 0;							//humidity over flag
+	TempDev.Input.data4.minimum = 0;						//humidity over flag
 	TempDev.Input.data4.maximum = 1;
 	TempDev.Input.data4.value = 0;
 	TempDev.Input.arg[0] = 1;
@@ -77,8 +77,8 @@ void HTU21D_Init(void)
 	TempDev.Input.dataNum = 4;
 	/* Output */
 	TempDev.Output.dataNum = 0;
-	
-	
+
+
 	I2CTempTRxEndFlag = 1;
 	I2C_Temp_Init();
 	temp[0] = 0x03;
@@ -102,7 +102,7 @@ uint16_t HTU21D_ReadTemp(void)
 
 float HTU21D_Humidity(void)
 {
-	uint8_t sRH   = HTU21D_ReadHumid(); //8-bit			
+	uint8_t sRH   = HTU21D_ReadHumid(); //8-bit
 	float   Humid =  -6    + ((125 * sRH)/256);
 	return (Humid);
 }
@@ -119,10 +119,10 @@ void GetHTU21DTemp(void)
 {
 	if(HTU21DWaitFlag == 0)
 	{
-      TempDev.Input.data2.value = HTU21D_Humidity();
-      TempDev.Input.data1.value = HTU21D_Temperature();	
+		TempDev.Input.data2.value = HTU21D_Humidity();
+		TempDev.Input.data1.value = HTU21D_Temperature();
 	}
-	
+
 	if(TempDev.Input.data2.value > TempDev.Feature.data3.value)
 	{
 		TempDev.Input.data4.value = 1;
@@ -131,7 +131,7 @@ void GetHTU21DTemp(void)
 	{
 		TempDev.Input.data4.value = 0;
 	}
-		
+
 	if(TempDev.Input.data1.value > TempDev.Feature.data2.value)
 	{
 		TempDev.Input.data3.value = 1;

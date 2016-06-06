@@ -18,15 +18,15 @@
 
 void GPE_IRQHandler(void)
 {
-    /* To check if PE.0 interrupt occurred */
-    if(GPIO_GET_INT_FLAG(PE, BIT0))
-    {
-        GPIO_CLR_INT_FLAG(PE, BIT0);
+	/* To check if PE.0 interrupt occurred */
+	if(GPIO_GET_INT_FLAG(PE, BIT0))
+	{
+		GPIO_CLR_INT_FLAG(PE, BIT0);
 		if(PE0 == 0)
 			keyState |= 1 << 7;
 		else if(PE0 == 1)
 			keyState &= ~(1 << 7);
-    }
+	}
 	KeyDev.Input.data1.value = keyState;
 	if(KeyDev.Input.data1.value > 0)
 	{

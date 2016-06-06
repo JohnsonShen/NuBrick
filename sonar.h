@@ -31,10 +31,10 @@ void SonarTimeOutCheck(void);
 
 extern float SonarDistance_Scale;					//Distance between sonar and object
 extern float Sonar_Distance;							//Distance between sonar and object
-extern float Sonar_Distance_OUT;					//Distance between sonar and object		
-extern uint32_t Sonar_caprure_timer;			//Sonar PWM capture time between rising and falling		
-extern uint8_t SonarExecuteFLAG;					//Sonar start to detect distance	
-extern uint8_t SonarERRORCounter;					//Sonar time out flag	
+extern float Sonar_Distance_OUT;					//Distance between sonar and object
+extern uint32_t Sonar_caprure_timer;			//Sonar PWM capture time between rising and falling
+extern uint8_t SonarExecuteFLAG;					//Sonar start to detect distance
+extern uint8_t SonarERRORCounter;					//Sonar time out flag
 extern int32_t SonarOverTimeCounter;
 
 #endif /* SONAR_H_ */

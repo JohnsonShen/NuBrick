@@ -17,7 +17,7 @@
 #define TEMP_HTU21D_H_
 //
 // HTU21D : Digital Relative Humidity Sensor with Temperature Output
-// 
+//
 #define HTU21D_I2C_PORT      I2C1
 #define HTU21D_I2C_SLA       0x80
 

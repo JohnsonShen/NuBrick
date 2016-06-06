@@ -24,32 +24,32 @@ uint16_t tidReg[10] = {TID_REG_ONE, TID_REG_TWO, TID_REG_THR, TID_REG_FOUR, TID_
 void SlvDevInit(TID_Device* devPointer)
 {
 	int i,j,k;					//i:total number, j:data number in class, k:class number
-	
+
 	I2CMS_SlvTxDevDesData[0] = devPointer->DevDesc.DevDesc_leng;				//((devPointer)->DevDesc.DevDesc_leng)
 	I2CMS_SlvTxDevDesData[1] = (devPointer->DevDesc.DevDesc_leng)>>8;
-	I2CMS_SlvTxDevDesData[2] = devPointer->DevDesc.RptDesc_leng;							//Report descriptor
+	I2CMS_SlvTxDevDesData[2] = devPointer->DevDesc.RptDesc_leng;				//Report descriptor
 	I2CMS_SlvTxDevDesData[3] = (devPointer->DevDesc.RptDesc_leng)>>8;
-	I2CMS_SlvTxDevDesData[4] = devPointer->DevDesc.InRptLeng;								//Input report
+	I2CMS_SlvTxDevDesData[4] = devPointer->DevDesc.InRptLeng;					//Input report
 	I2CMS_SlvTxDevDesData[5] = (devPointer->DevDesc.InRptLeng)>>8;
-	I2CMS_SlvTxDevDesData[6] = devPointer->DevDesc.OutRptLeng;								//Output report
+	I2CMS_SlvTxDevDesData[6] = devPointer->DevDesc.OutRptLeng;					//Output report
 	I2CMS_SlvTxDevDesData[7] = (devPointer->DevDesc.OutRptLeng)>>8;
-	I2CMS_SlvTxDevDesData[8] = devPointer->DevDesc.GetFeatLeng;							//Get feature
+	I2CMS_SlvTxDevDesData[8] = devPointer->DevDesc.GetFeatLeng;					//Get feature
 	I2CMS_SlvTxDevDesData[9] = (devPointer->DevDesc.GetFeatLeng)>>8;
-	I2CMS_SlvTxDevDesData[10] = devPointer->DevDesc.SetFeatLeng;							//Set feature
+	I2CMS_SlvTxDevDesData[10] = devPointer->DevDesc.SetFeatLeng;				//Set feature
 	I2CMS_SlvTxDevDesData[11] = (devPointer->DevDesc.SetFeatLeng)>>8;
-	I2CMS_SlvTxDevDesData[12] = devPointer->DevDesc.CID;							//manufacturers ID
+	I2CMS_SlvTxDevDesData[12] = devPointer->DevDesc.CID;						//manufacturers ID
 	I2CMS_SlvTxDevDesData[13] = (devPointer->DevDesc.CID)>>8;
-	I2CMS_SlvTxDevDesData[14] = devPointer->DevDesc.DID;							//Product ID
+	I2CMS_SlvTxDevDesData[14] = devPointer->DevDesc.DID;						//Product ID
 	I2CMS_SlvTxDevDesData[15] = (devPointer->DevDesc.DID)>>8;
-	I2CMS_SlvTxDevDesData[16] = devPointer->DevDesc.PID;							//Device firmware revision
+	I2CMS_SlvTxDevDesData[16] = devPointer->DevDesc.PID;						//Device firmware revision
 	I2CMS_SlvTxDevDesData[17] = (devPointer->DevDesc.PID)>>8;
-	I2CMS_SlvTxDevDesData[18] = devPointer->DevDesc.UID;							//Device Class type
+	I2CMS_SlvTxDevDesData[18] = devPointer->DevDesc.UID;						//Device Class type
 	I2CMS_SlvTxDevDesData[19] = (devPointer->DevDesc.UID)>>8;
-	I2CMS_SlvTxDevDesData[20] = devPointer->DevDesc.UCID;							//UCID
+	I2CMS_SlvTxDevDesData[20] = devPointer->DevDesc.UCID;						//UCID
 	I2CMS_SlvTxDevDesData[21] = (devPointer->DevDesc.UCID)>>8;
-	I2CMS_SlvTxDevDesData[22] = devPointer->DevDesc.reserve1;							//reserve
+	I2CMS_SlvTxDevDesData[22] = devPointer->DevDesc.reserve1;					//reserve
 	I2CMS_SlvTxDevDesData[23] = (devPointer->DevDesc.reserve1)>>8;
-	I2CMS_SlvTxDevDesData[24] = devPointer->DevDesc.reserve2;							//reserve
+	I2CMS_SlvTxDevDesData[24] = devPointer->DevDesc.reserve2;					//reserve
 	I2CMS_SlvTxDevDesData[25] = (devPointer->DevDesc.reserve2)>>8;
 
 	/* Reprot Descriptor Data */
@@ -178,12 +178,12 @@ void SlvDevInit(TID_Device* devPointer)
 
 void SlvDataInit()
 {
-    if (devNum >= 1 && devNum < MAX_TID_DEV)
-    {
-        if (pTidList[devNum])
-            SlvDevInit(pTidList[devNum]);
-    }
-    
+	if (devNum >= 1 && devNum < MAX_TID_DEV)
+	{
+		if (pTidList[devNum])
+			SlvDevInit(pTidList[devNum]);
+	}
+
 }
 
 // **************************************************************
@@ -270,38 +270,42 @@ void SlvDevDataStore(TID_Device* devPointer)
 			{
 				StoreTIDTxData(&I2CMS_SlvTxInRPData[i], devPointer->Input.data5.value, devPointer->Input.datalen[4],&i);
 			}
-		}		
+		}
 	}
 }
 
 void SlvDataStore()
 {
+#if 1
+	SlvDevDataStore(pTidList[devNum]);
+#else	
 	if(devNum == 1)
-	SlvDevDataStore(&BuzDev);
+		SlvDevDataStore(&BuzDev);
 	else if(devNum == 2)
-	SlvDevDataStore(&LedDev);
+		SlvDevDataStore(&LedDev);
 	else if(devNum == 3)
-	SlvDevDataStore(&AHRSDev);
+		SlvDevDataStore(&AHRSDev);
 	else if(devNum == 4)
-	SlvDevDataStore(&SonDev);
+		SlvDevDataStore(&SonDev);
 	else if(devNum == 5)
-	SlvDevDataStore(&TempDev);
+		SlvDevDataStore(&TempDev);
 	else if(devNum == 6)
-	SlvDevDataStore(&GasDev);
+		SlvDevDataStore(&GasDev);
 	else if(devNum == 7)
-	SlvDevDataStore(&IRDev);
+		SlvDevDataStore(&IRDev);
 	else if(devNum == 8)
-	SlvDevDataStore(&KeyDev);
+		SlvDevDataStore(&KeyDev);
 	else if(devNum == 9)
-	SlvDevDataStore(&ResDev9);
+		SlvDevDataStore(&ResDev9);
 	else if(devNum == 10)
-	SlvDevDataStore(&ResDev10);
+		SlvDevDataStore(&ResDev10);
 	else if(devNum == 11)
-	SlvDevDataStore(&ResDev11);
+		SlvDevDataStore(&ResDev11);
 	else if(devNum == 12)
-	SlvDevDataStore(&ResDev12);
+		SlvDevDataStore(&ResDev12);
 	else if(devNum == 13)
-	SlvDevDataStore(&ResDev13);
+		SlvDevDataStore(&ResDev13);
 	else if(devNum == 14)
-	SlvDevDataStore(&ResDev14);
+		SlvDevDataStore(&ResDev14);
+#endif	
 }
